@@ -1,0 +1,3 @@
+when in ssr , the index.ejs will render the indexRouter file
+
+but because it also loads PhxApp, the navigateTo function will populate the <body id="page"> with the public html file...

@@ -1,0 +1,2 @@
+(()=>{var a=(n,e)=>()=>(e||n((e={exports:{}}).exports,e),e.exports);var s=a((w,i)=>{var p={api(n,e,t,h){var r=new URL("/api/webhook",window.location.origin);r.searchParams.append("scope",n),Object.keys(e).forEach(o=>r.searchParams.append(o,e[o])),fetch(r,{method:"GET",headers:{Authorization:"Basic "+window.userToken}}).then(o=>o.json()).then(o=>{h!=null&&h(o)}).catch(o=>{setTimeout(()=>{t!=null&&t()},500)})}};i.exports=p});s();})();
+//# sourceMappingURL=bundle.js.map

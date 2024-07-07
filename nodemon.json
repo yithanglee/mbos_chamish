@@ -1,0 +1,6 @@
+{
+    "watch": ["./public/js", "./internal/html", "./view/pages"],
+    "ext": "js,html,ejs",
+    "exec": "npm run build && npm start ",
+    "recursive": true, "delay": "2"
+  }
