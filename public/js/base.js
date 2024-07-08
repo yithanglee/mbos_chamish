@@ -87,7 +87,7 @@ var route_names = [
                 }
             }
             var footer_modals = PhxApp.html("footer_modals.html")
-            var html = PhxApp.html2(match_2[0].html)
+            var html = PhxApp.html2(match_2[0].html, pageParams)
             var initPage = `
           ` + html + `     
           ` + footer_modals + `

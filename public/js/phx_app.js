@@ -525,16 +525,31 @@ let PhxApp = {
     })
     return res;
   },
-  html2(page) {
+  html2(page, pageParams) {
+    console.log("ht2")
+ 
     $(".modal-body").each((i, v) => {
       $(v).html('')
     })
     var res = "", pagez = "landing"
 
+
+    var xstring = []
+
+
+    Object.keys(pageParams).forEach((v,i) => {
+      if (i == 0) {
+        xstring.push("&" + v + "=" + pageParams[v])
+      } else {
+        xstring.push(v + "=" + pageParams[v])
+      }
+      
+    })
+
     $.ajax({
       async: false,
       method: "get",
-      url: "/" + page.replace(".html", "") + "?partial=true"
+      url: "/" + page.replace(".html", "") + "?partial=true" + xstring.join("&")
     }).done((j) => {
       res = j
     })

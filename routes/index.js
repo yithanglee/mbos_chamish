@@ -7,7 +7,7 @@ const axios = require('axios');
 require('dotenv').config();
 const blogUrl = process.env.BLOG_URL;
 
-
+var products = []
 async function api(url) {
   try {
     const apiUrl = url; // Replace with the actual API URL
@@ -25,6 +25,14 @@ async function api(url) {
 router.get('/single-product/*', async function (req, res, next) {
   var contentNav = '', content = '', filename = ''
   console.log(req.params)
+  if  ( products.length == 0){
+    product =  JSON.parse(await api(blogUrl + "/api/webhook?scope=get_product&id=" + req.params [0]) )
+  }
+
+  var check = products.filter((v,i) => {return v.id == parseInt(req.params [0])}); 
+  if (check.length > 0) {
+    product = check[0]
+  }
   key = req.params[0]
   switch (key) {
     case "home":
@@ -50,13 +58,14 @@ router.get('/single-product/*', async function (req, res, next) {
   }
   const decodedHtml = he.decode(Buffer.from(content).toString());
   finalContent = decodedHtmlNav + decodedHtml
-  console.log(finalContent)
 
-
+  data = {
+    blogUrl: blogUrl, product: product
+  }
   if (Object.keys(req.query).includes('partial')) {
-    res.render('pages/' + key, { data: {} });
+    res.render('pages/' + key, { data: data  });
   } else {
-    res.render('index', { page: filename.replace(".html", ""), useEjs: decodedHtml.length == 0, content: finalContent, data: {} });
+    res.render('index', { page: filename.replace(".html", ""), useEjs: decodedHtml.length == 0, content: finalContent, data: data  });
   }
 
 });
@@ -91,23 +100,29 @@ router.get('/*', async function (req, res, next) {
   }
   const decodedHtml = he.decode(Buffer.from(content).toString());
   finalContent = decodedHtmlNav + decodedHtml
-
   full_data = JSON.parse(await api(blogUrl + "/api/webhook?scope=get_products"))
-  console.log(full_data)
   banners = await api(blogUrl + "/api/webhook?scope=get_banners")
-  data = {
+  products = full_data.products
+  product = {}
 
+  if (key == "single-product"){
+    product = products.filter((v,i) => {return v.id == parseInt(req.query.id ) })[0];
+  }
+
+  data = {
+    product: product,
     blogUrl: blogUrl,
     banners: banners,
     products: full_data.products,
     categories: full_data.categories,
     brands: full_data.brands,
   }
+
   if (Object.keys(req.query).includes('partial')) {
-    res.render('pages/' + key, { data: data });
+    res.render('pages/' + key, { data: data});
   } else {
     res.render('index', {
-      page: filename.replace(".html", ""), useEjs: decodedHtml.length == 0, content: finalContent, data: data
+      page: filename.replace(".html", ""), useEjs: decodedHtml.length == 0, content: finalContent,     data: data
     });
   }
 
