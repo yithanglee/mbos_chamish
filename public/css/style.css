@@ -867,14 +867,14 @@ select {
 }
 
 .bg_image--2 {
-  background-image: url(../img/bg/bg-image-2.jpg);
+  background-image: url(../img/bg/bg-image-2.webp);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center center;
 }
 
 .bg_image--3 {
-  background-image: url(../img/bg/bg-image-3.jpg);
+  background-image: url(../img/bg/bg-image-3.webp);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center center;

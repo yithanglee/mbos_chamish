@@ -29,6 +29,8 @@
   <script type="text/javascript" src="/js/sha.js"></script>
   <script type="text/javascript" src="/js/phx_app.js"></script>
   <script src="/js/base.js"></script>
+  <script src="/js/route.js"></script>
+
   <script>
 
 
@@ -40,9 +42,9 @@
   <!-- Wrapper -->
   <div id="wrapper" class="wrapper">
     <%- content %>
-    <% if (useEjs) { %>
-    <%- include('pages/' + page, { data: data }) %>
-    <% }%>
+      <% if (useEjs) { %>
+        <%- include('pages/' + page, { data: data }) %>
+          <% }%>
 
   </div>
   <div class="wrapper">
@@ -51,231 +53,162 @@
       <div class="footer_top bg-cat--1">
         <div class="container">
           <div class="row">
-            <!-- Start Single Footer -->
-            <div class="col-lg-3 col-sm-6 col-12 mb--50">
-              <div class="footer_widget">
-                <h2 class="ft_widget_title">Los Angeles</h2>
-                <div class="textwidget">
-                  <p>254 Roselen de Square
-                    <br>Century Street, Haven Tower
-                    <br>Los Angeles, USA
-                  </p>
-                  <p>01254 658 987, 02365 987 456</p>
-                  <p>info@example.com
-                    <br>www.example.com
-                  </p>
-                </div>
-              </div>
-            </div>
-            <!-- End Single Footer -->
-            <!-- Start Single Footer -->
-            <div class="col-lg-3 col-sm-6 col-12 mb--50">
-              <div class="footer_widget">
-                <h2 class="ft_widget_title">Manchester</h2>
-                <div class="textwidget">
-                  <p>254 Roselen de Square
-                    <br>Century Street, Haven Tower
-                    <br>Los Angeles, USA
-                  </p>
-                  <p>01254 658 987, 02365 987 456</p>
-                  <p>info@example.com
-                    <br>www.example.com
-                  </p>
-                </div>
-              </div>
-            </div>
-            <!-- End Single Footer -->
-            <!-- Start Single Footer -->
-            <div class="col-lg-3 col-sm-6 col-12 mb--50">
-              <div class="footer_widget">
-                <h2 class="ft_widget_title">Abu Dhabi</h2>
-                <div class="textwidget">
-                  <p>Oxeler Bin Square
-                    <br>Seleya Street, Silicon Tower
-                    <br>Abu Dhabi, UAE
-                  </p>
-                  <p>09365 856 658, 09683 2656 889</p>
-                  <p>info@example.com
-                    <br>www.example.com
-                  </p>
-                </div>
-              </div>
-            </div>
-            <!-- End Single Footer -->
-            <!-- Start Single Footer -->
-            <div class="col-lg-3 col-sm-6 col-12 mb--50">
-              <div class="footer_widget">
-                <h2 class="ft_widget_title">Newsletter</h2>
-                <div class="textwidget">
-                  <div class="input_box">
-                    <input type="email" placeholder="Enter your email here">
-                    <button>Subscribe</button>
+            <% if (data.sections.filter((s,i)=> {return s.name == 'Bottom Footer'}).length == 0) { %>
+
+
+              <!-- Start Single Footer -->
+              <div class="col-lg-3 col-sm-6 col-12 mb--50">
+                <div class="footer_widget">
+                  <h2 class="ft_widget_title">Los Angeles</h2>
+                  <div class="textwidget">
+                    <p>254 Roselen de Square
+                      <br>Century Street, Haven Tower
+                      <br>Los Angeles, USA
+                    </p>
+                    <p>01254 658 987, 02365 987 456</p>
+                    <p>info@example.com
+                      <br>www.example.com
+                    </p>
                   </div>
                 </div>
               </div>
-            </div>
-            <!-- End Single Footer -->
+              <!-- End Single Footer -->
+              <!-- Start Single Footer -->
+              <div class="col-lg-3 col-sm-6 col-12 mb--50">
+                <div class="footer_widget">
+                  <h2 class="ft_widget_title">Manchester</h2>
+                  <div class="textwidget">
+                    <p>254 Roselen de Square
+                      <br>Century Street, Haven Tower
+                      <br>Los Angeles, USA
+                    </p>
+                    <p>01254 658 987, 02365 987 456</p>
+                    <p>info@example.com
+                      <br>www.example.com
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <!-- End Single Footer -->
+              <!-- Start Single Footer -->
+              <div class="col-lg-3 col-sm-6 col-12 mb--50">
+                <div class="footer_widget">
+                  <h2 class="ft_widget_title">Abu Dhabi</h2>
+                  <div class="textwidget">
+                    <p>Oxeler Bin Square
+                      <br>Seleya Street, Silicon Tower
+                      <br>Abu Dhabi, UAE
+                    </p>
+                    <p>09365 856 658, 09683 2656 889</p>
+                    <p>info@example.com
+                      <br>www.example.com
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <!-- End Single Footer -->
+              <!-- Start Single Footer -->
+              <div class="col-lg-3 col-sm-6 col-12 mb--50">
+                <div class="footer_widget">
+                  <h2 class="ft_widget_title">Newsletter</h2>
+                  <div class="textwidget">
+                    <div class="input_box">
+                      <input type="email" placeholder="Enter your email here">
+                      <button>Subscribe</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- End Single Footer -->
+              <% } else { %>
+
+                <% bottom_footer=data.sections.filter((s,i)=> {return s.name == 'Bottom Footer'})[0] %>
+
+                  <% if (bottom_footer.content1 !=null ) { %>
+                    <div class="<%- bottom_footer.content1_class_list %>"">
+                                <%- bottom_footer.content1 %>
+                            </div>
+                            <% }%>
+                            <% if (bottom_footer.content2 != null ) { %>
+                              <div class=" <%- bottom_footer.content2_class_list %>"">
+                      <%- bottom_footer.content2 %>
+                    </div>
+                    <% }%>
+                      <% if (bottom_footer.content3 !=null ) { %>
+                        <div class="<%- bottom_footer.content3_class_list %>"">
+                                    <%- bottom_footer.content3 %>
+                                </div>
+                                <% }%>
+                                <% if (bottom_footer.content4 != null ) { %>
+                                  <div class=" <%- bottom_footer.content4_class_list %>"">
+                          <%- bottom_footer.content4 %>
+                        </div>
+                        <% }%>
+
+                          <% }%>
+
           </div>
         </div>
       </div>
       <div class="copyright bg-cat--2">
         <div class="container">
           <div class="row align-items-center">
-            <div class="col-lg-6">
-              <div class="copy_text">
-                <p>
-                  &copy; Chasmish,
-                  <script>document.write(new Date().getFullYear())</script>.
-                  Made with <i class="fa fa-heart text-danger"></i> by
-                  <a href="//hasthemes.com" target="_blank">HasThemes</a>
-                </p>
+            <% if (data.sections.filter((s,i)=> {return s.name == 'Bottom Nav'}).length == 0) { %>
+              <div class="col-lg-6">
+                <div class="copy_text">
+                  <p>
+                    &copy; MB Optics Safety,
+                    <script>document.write(new Date().getFullYear())</script>
+
+                  </p>
+                </div>
               </div>
-            </div>
-            <div class="col-lg-6">
-              <ul class="footer_menu d-flex justify-content-end">
-                <li>
-                  <a href="#">Product Tracking</a>
-                </li>
-                <li>
-                  <a href="#">Terms & Conditions</a>
-                </li>
-                <li>
-                  <a href="#">Contact</a>
-                </li>
-              </ul>
-            </div>
+              <div class="col-lg-6">
+                <ul class="footer_menu d-flex justify-content-end">
+                  <li>
+                    <a href="#">Product Tracking</a>
+                  </li>
+                  <li>
+                    <a href="#">Terms & Conditions</a>
+                  </li>
+                  <li>
+                    <a href="#">Contact</a>
+                  </li>
+                </ul>
+              </div>
+              <% } else { %>
+
+                <% bottom_nav=data.sections.filter((s,i)=> {return s.name == 'Bottom Nav'})[0] %>
+
+                  <% if (bottom_nav.content1 !=null ) { %>
+                    <div class="<%- bottom_nav.content1_class_list %>"">
+                                <%- bottom_nav.content1 %>
+                            </div>
+                            <% }%>
+                            <% if (bottom_nav.content2 != null ) { %>
+                              <div class=" <%- bottom_nav.content2_class_list %>"">
+                      <%- bottom_nav.content2 %>
+                    </div>
+                    <% }%>
+                      <% if (bottom_nav.content3 !=null ) { %>
+                        <div class="<%- bottom_nav.content3_class_list %>"">
+                                    <%- bottom_nav.content3 %>
+                                </div>
+                                <% }%>
+                                <% if (bottom_nav.content4 != null ) { %>
+                                  <div class=" <%- bottom_nav.content4_class_list %>"">
+                          <%- bottom_nav.content4 %>
+                        </div>
+                        <% }%>
+                          <% } %>
+
           </div>
         </div>
       </div>
     </footer>
     <!-- End Footer Area -->
 
-    <!-- Quick View Modal -->
-    <div class="quick-view-modal">
-      <div class="quick-view-modal-inner">
-        <div class="container">
-          <div class="product-details">
-            <!-- Product Details Left -->
-            <div class="product-details-left">
-              <div class="product-details-images slider-navigation-2">
-                <a href="/img/product/sm1.png">
-                  <img src="/img/product/big-img.png" alt="product image">
-                </a>
-                <a href="/img/product/sm2.png">
-                  <img src="/img/product/big-img.png" alt="product image">
-                </a>
-                <a href="/img/product/sm3.png">
-                  <img src="/img/product/big-img.png" alt="product image">
-                </a>
-                <a href="/img/product/sm1.png">
-                  <img src="/img/product/big-img.png" alt="product image">
-                </a>
-                <a href="/img/product/sm1.png">
-                  <img src="/img/product/big-img.png" alt="product image">
-                </a>
-              </div>
-              <div class="product-details-thumbs slider-navigation-2">
-                <img src="/img/product/sm1.png" alt="product image thumb">
-                <img src="/img/product/sm2.png" alt="product image thumb">
-                <img src="/img/product/sm3.png" alt="product image thumb">
-                <img src="/img/product/sm1.png" alt="product image thumb">
-                <img src="/img/product/sm1.png" alt="product image thumb">
-              </div>
-            </div>
-            <!--// Product Details Left -->
 
-            <!-- Product Details Right -->
-            <div class="product-details-right">
-              <h5 class="product-title">Aenean Eu Tristique</h5>
-
-              <div class="ratting-stock-availbility">
-                <div class="ratting-box">
-                  <span><i class="fa fa-star"></i></span>
-                  <span><i class="fa fa-star"></i></span>
-                  <span><i class="fa fa-star"></i></span>
-                  <span><i class="fa fa-star"></i></span>
-                  <span><i class="fa fa-star"></i></span>
-                </div>
-                <span class="stock-available">In stock</span>
-              </div>
-
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam fringilla augue nec est
-                tristique auctor. Donec non est at libero vulputate rutrum. Morbi ornare lectus quis justo
-                gravida semper. Nulla tellus mi, vulputate adipiscing cursus eu, suscipit id nulla.
-                adipiscing cursus eu, suscipit id nulla.</p>
-
-              <div class="price-box">
-                <span class="pricebox-price">£80.00</span>
-              </div>
-
-              <div class="product-details-quantity">
-                <div class="quantity-select">
-                  <div class="pro-quantity">
-                    <div class="pro-qty"><input type="text" value="1"></div>
-                  </div>
-                </div>
-                <a href="#" class="add-to-cart-button">
-                  <span>ADD TO CART</span>
-                </a>
-              </div>
-
-              <div class="product-details-color">
-                <span>Color :</span>
-                <ul>
-                  <li class="red"><span></span></li>
-                  <li class="green checked"><span></span></li>
-                  <li class="blue"><span></span></li>
-                  <li class="black"><span></span></li>
-                </ul>
-              </div>
-
-              <div class="product-details-size">
-                <span>Size :</span>
-                <ul>
-                  <li class="checked"><span>S</span></li>
-                  <li><span>M</span></li>
-                  <li><span>L</span></li>
-                  <li><span>XL</span></li>
-                  <li><span>XXL</span></li>
-                </ul>
-              </div>
-
-              <div class="product-details-categories">
-                <span>Categories :</span>
-                <ul>
-                  <li><a href="shop.html">Accessories</a></li>
-                  <li><a href="shop.html">Kids</a></li>
-                  <li><a href="shop.html">Women</a></li>
-                </ul>
-              </div>
-
-              <div class="product-details-tags">
-                <span>Tags :</span>
-                <ul>
-                  <li><a href="shop.html">Electronic</a></li>
-                  <li><a href="shop.html">Television</a></li>
-                </ul>
-              </div>
-
-              <div class="product-details-socialshare">
-                <span>Share :</span>
-                <ul>
-                  <li><a class="facebook" href="#"><i class="fa fa-facebook"></i></a></li>
-                  <li><a class="twitter" href="#"><i class="fa fa-twitter"></i></a></li>
-                  <li><a class="google-plus" href="#"><i class="fa fa-google-plus"></i></a></li>
-                  <li><a class="linkedin" href="#"><i class="fa fa-linkedin"></i></a></li>
-                  <li><a class="instagram" href="#"><i class="fa fa-instagram"></i></a></li>
-                </ul>
-              </div>
-            </div>
-            <!--// Product Details Right -->
-
-          </div>
-        </div>
-      </div>
-      <button class="close-quickview-modal"><i class="fa fa-close"></i></button>
-    </div>
-    <!--// Quick View Modal -->
   </div>
   <!--// Wrapper -->
   <script src="/js/plugins.js"></script>

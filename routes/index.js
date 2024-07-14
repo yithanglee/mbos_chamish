@@ -25,11 +25,11 @@ async function api(url) {
 router.get('/single-product/*', async function (req, res, next) {
   var contentNav = '', content = '', filename = ''
   console.log(req.params)
-  if  ( products.length == 0){
-    product =  JSON.parse(await api(blogUrl + "/api/webhook?scope=get_product&id=" + req.params [0]) )
+  if (products.length == 0) {
+    product = JSON.parse(await api(blogUrl + "/api/webhook?scope=get_product&id=" + req.params[0]))
   }
 
-  var check = products.filter((v,i) => {return v.id == parseInt(req.params [0])}); 
+  var check = products.filter((v, i) => { return v.id == parseInt(req.params[0]) });
   if (check.length > 0) {
     product = check[0]
   }
@@ -58,14 +58,14 @@ router.get('/single-product/*', async function (req, res, next) {
   }
   const decodedHtml = he.decode(Buffer.from(content).toString());
   finalContent = decodedHtmlNav + decodedHtml
-
+  sections = JSON.parse(await api(blogUrl + "/api/webhook?scope=get_sections"))
   data = {
-    blogUrl: blogUrl, product: product
+    blogUrl: blogUrl, product: product, sections: sections
   }
   if (Object.keys(req.query).includes('partial')) {
-    res.render('pages/' + key, { data: data  });
+    res.render('pages/' + key, { data: data });
   } else {
-    res.render('index', { page: filename.replace(".html", ""), useEjs: decodedHtml.length == 0, content: finalContent, data: data  });
+    res.render('index', { page: filename.replace(".html", ""), useEjs: decodedHtml.length == 0, content: finalContent, data: data });
   }
 
 });
@@ -102,15 +102,18 @@ router.get('/*', async function (req, res, next) {
   finalContent = decodedHtmlNav + decodedHtml
   full_data = JSON.parse(await api(blogUrl + "/api/webhook?scope=get_products"))
   banners = await api(blogUrl + "/api/webhook?scope=get_banners")
+  sections = JSON.parse(await api(blogUrl + "/api/webhook?scope=get_sections"))
+  // Bottom Banner - Shipping Service
   products = full_data.products
   product = {}
 
-  if (key == "single-product"){
-    product = products.filter((v,i) => {return v.id == parseInt(req.query.id ) })[0];
+  if (key == "single-product") {
+    product = products.filter((v, i) => { return v.id == parseInt(req.query.id) })[0];
   }
 
   data = {
     product: product,
+    sections: sections,
     blogUrl: blogUrl,
     banners: banners,
     products: full_data.products,
@@ -119,10 +122,10 @@ router.get('/*', async function (req, res, next) {
   }
 
   if (Object.keys(req.query).includes('partial')) {
-    res.render('pages/' + key, { data: data});
+    res.render('pages/' + key, { data: data });
   } else {
     res.render('index', {
-      page: filename.replace(".html", ""), useEjs: decodedHtml.length == 0, content: finalContent,     data: data
+      page: filename.replace(".html", ""), useEjs: decodedHtml.length == 0, content: finalContent, data: data
     });
   }
 

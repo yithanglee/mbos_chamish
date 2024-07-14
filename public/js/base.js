@@ -1,10 +1,4 @@
-var route_names = [
-    { html: "landing.html", title: "Home", route: "/home", },
-    { html: "contact.html", title: "Contact", route: "/contact", },
-
-    { html: "single-product.html", title: "Product", route: "/single-product/:id", },
-    { html: "not_found.html", title: "Not Found", route: "/not-found" },
-], evalTitle = (title) => {
+var  evalTitle = (title) => {
     return title
 },
     loadingPage = async () => {

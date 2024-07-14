@@ -45,29 +45,29 @@
             </div>
         </div>
         <div class="row mt--20">
-          
-                    <% data.products.forEach(product=> { %>
-                        <!-- Start Single Product -->
-                        <div class="col-lg-3 col-xl-3 col-sm-6 col-12">
-                            <div class="product">
-                                <a class="navi" href="single-product/<%= product.id %>">
-                                    <div class="thumb" style="
+
+            <% data.products.forEach(product=> { %>
+                <!-- Start Single Product -->
+                <div class="col-lg-3 col-xl-3 col-sm-6 col-12">
+                    <div class="product">
+                        <a class="navi" href="single-product/<%= product.id %>">
+                            <div class="thumb" style="
                             height: 24vh;
                             background-image: url('<%= data.blogUrl %>/<%= product.img_url%>');
                             background-size: contain;
                             background-repeat: no-repeat;
                             background-position: center;">
-                                        <div class="content">
-                                            <h4>
-                                                <%= product.name %>
-                                            </h4>
-                                        </div>
-                                    </div>
-                                </a>
+                                <div class="content">
+                                    <h4>
+                                        <%= product.name %>
+                                    </h4>
+                                </div>
                             </div>
-                        </div>
-                        <!-- End Single Product -->
-                        <% }) %>
+                        </a>
+                    </div>
+                </div>
+                <!-- End Single Product -->
+                <% }) %>
 
 
         </div>
@@ -115,72 +115,78 @@
             <div class="col-lg-12">
                 <div class="product_tab_name justify-content-center nav" role="tablist">
                     <a class="active" href="#item0" data-bs-toggle="tab"> all</a>
-                    <% data.brands.forEach( brand => { %>
-                        <a href="#item<%= brand.id%>" data-bs-toggle="tab"> <%= brand.name%></a>
-                    <% }) %>
-                    
-                   
+                    <% data.brands.forEach( brand=> { %>
+                        <a href="#item<%= brand.id%>" data-bs-toggle="tab">
+                            <%= brand.name%>
+                        </a>
+                        <% }) %>
+
+
                 </div>
             </div>
         </div>
         <div class="tab_content">
             <!-- Start Single Content -->
             <div class="row single_content tab-pane fade show active" id="item0" role="tabpanel">
+                <% prescription_category=data.categories.filter((c,i)=> {return c.name == 'Prescription' })[0]
+                    prescription_products = data.products.filter((v,i) => { return v.category_id ==
+                    prescription_category.id })
+                    %>
+                    <% prescription_products.forEach(product=> { %>
 
-                <% data.products.forEach(product=> { %>
-                    <!-- Start Single Product -->
-                    <div class="col-lg-4 col-xl-3 col-sm-6 col-12">
-                        <div class="product">
-                            <a class="navi" href="single-product/<%= product.id %>">
-                                <div class="thumb" style="
+                        <!-- Start Single Product -->
+                        <div class="col-lg-4 col-xl-3 col-sm-6 col-12">
+                            <div class="product">
+                                <a class="navi" href="single-product/<%= product.id %>">
+                                    <div class="thumb" style="
                         height: 24vh;
                         background-image: url('<%= data.blogUrl %>/<%= product.img_url%>');
                         background-size: contain;
                         background-repeat: no-repeat;
                         background-position: center;">
-                                    <div class="content">
-                                        <h4>
-                                            <%= product.name %>
-                                        </h4>
+                                        <div class="content">
+                                            <h4>
+                                                <%= product.name %>
+                                            </h4>
+                                        </div>
                                     </div>
-                                </div>
-                            </a>
+                                </a>
+                            </div>
                         </div>
-                    </div>
-                    <!-- End Single Product -->
-                    <% }) %>
+                        <!-- End Single Product -->
+                        <% }) %>
             </div>
             <!-- End Single Content -->
-            <% data.brands.forEach( brand => { %>
-            <!-- Start Single Content -->
-            <div class="row single_content tab-pane fade" id="item<%= brand.id %>" role="tabpanel">
-                <% data.products.filter((v,i) => { return v.brand_id == brand.id }).forEach(product=> { %>
-                    <!-- Start Single Product -->
-                    <div class="col-lg-4 col-xl-3 col-sm-6 col-12">
-                        <div class="product">
-                            <a class="navi" href="single-product/<%= product.id %>">
-                                <div class="thumb" style="
+            <% data.brands.forEach( brand=> { %>
+                <!-- Start Single Content -->
+                <div class="row single_content tab-pane fade" id="item<%= brand.id %>" role="tabpanel">
+                    <% prescription_products.filter((v,i)=> { return v.brand_id == brand.id }).forEach(product=> { %>
+                        <!-- Start Single Product -->
+                        <div class="col-lg-4 col-xl-3 col-sm-6 col-12">
+                            <div class="product">
+                                <a class="navi" href="single-product/<%= product.id %>">
+                                    <div class="thumb" style="
                         height: 24vh;
                         background-image: url('<%= data.blogUrl %>/<%= product.img_url%>');
                         background-size: contain;
                         background-repeat: no-repeat;
                         background-position: center;">
-                                    <div class="content">
-                                        <h4>
-                                            <%= product.name %>
-                                        </h4>
+                                        <div class="content">
+                                            <h4>
+                                                <%= product.name %>
+                                            </h4>
+                                        </div>
                                     </div>
-                                </div>
-                            </a>
+                                </a>
+                            </div>
                         </div>
-                    </div>
-                    <!-- End Single Product -->
-                    <% }) %>
-               
-            </div>
-            <!-- End Single Content -->
-            <% }) %>
-        
+                        <!-- End Single Product -->
+                        <% }) %>
+
+                </div>
+                <!-- End Single Content -->
+                <% }) %>
+
         </div>
     </div>
 </div>
@@ -254,259 +260,129 @@
                 </div>
             </div>
         </div>
+        <!--plano only-->
         <div class="row mt--20">
-            <!-- Start Single Product -->
-            <div class="col-lg-3 col-xl-3 col-sm-6 col-12">
-                <div class="product">
-                    <div class="thumb">
-                        <a href="single-product.html">
-                            <img src="img/product/product-1.jpg" alt="product img">
-                        </a>
-                        <div class="product_action">
-                            <h4>
-                                <a href="single-product.html">Rinosin Glasses</a>
-                            </h4>
-                            <ul class="cart_action">
-                                <li>
-                                    <a href="cart.html">
-                                        <img src="img/icons/add_to_cart.png" alt="icons">
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <img src="img/icons/compare_icon.png" alt="icons">
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="wishlist.html">
-                                        <img src="img/icons/wishlist_icon.png" alt="icons">
-                                    </a>
-                                </li>
-                                <li>
-                                    <a title="Quick View" class="quickview" href="#">
-                                        <img src="img/icons/quick_view.png" alt="icons">
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="content">
-                            <h4>
-                                <a href="single-product.html">Rinosin Glasses</a>
-                            </h4>
-                            <ul class="price">
-                                <li>$35</li>
-                                <li class="old-price">$35</li>
-                            </ul>
+            <% plano_category=data.categories.filter((c,i)=> {return c.name == 'Plano' })[0] %>
+                <% data.products.filter((v,i)=> { return v.category_id == plano_category.id }).forEach(product=> { %>
+                    <!-- Start Single Product -->
+                    <div class="col-lg-4 col-xl-3 col-sm-6 col-12">
+                        <div class="product">
+                            <a class="navi" href="single-product/<%= product.id %>">
+                                <div class="thumb" style="
+                    height: 24vh;
+                    background-image: url('<%= data.blogUrl %>/<%= product.img_url%>');
+                    background-size: contain;
+                    background-repeat: no-repeat;
+                    background-position: center;">
+                                    <div class="content">
+                                        <h4>
+                                            <%= product.name %>
+                                        </h4>
+                                    </div>
+                                </div>
+                            </a>
                         </div>
                     </div>
-                </div>
-            </div>
-            <!-- End Single Product -->
-            <!-- Start Single Product -->
-            <div class="col-lg-3 col-xl-3 col-sm-6 col-12">
-                <div class="product">
-                    <div class="thumb">
-                        <a href="single-product.html">
-                            <img src="img/product/product-2.jpg" alt="product img">
-                        </a>
-                        <div class="product_action">
-                            <h4>
-                                <a href="single-product.html">Silacon Glasses</a>
-                            </h4>
-                            <ul class="cart_action">
-                                <li>
-                                    <a href="cart.html">
-                                        <img src="img/icons/add_to_cart.png" alt="icons">
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <img src="img/icons/compare_icon.png" alt="icons">
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="wishlist.html">
-                                        <img src="img/icons/wishlist_icon.png" alt="icons">
-                                    </a>
-                                </li>
-                                <li>
-                                    <a title="Quick View" class="quickview" href="#">
-                                        <img src="img/icons/quick_view.png" alt="icons">
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="content">
-                            <h4>
-                                <a href="single-product.html">Silacon Glasses</a>
-                            </h4>
-                            <ul class="price">
-                                <li>$35</li>
-                                <li class="old-price">$35</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- End Single Product -->
-            <!-- Start Single Product -->
-            <div class="col-lg-3 col-xl-3 col-sm-6 col-12">
-                <div class="product">
-                    <div class="thumb">
-                        <a href="single-product.html">
-                            <img src="img/product/product-3.jpg" alt="product img">
-                        </a>
-                        <div class="product_action">
-                            <h4>
-                                <a href="single-product.html">Easin Glasses</a>
-                            </h4>
-                            <ul class="cart_action">
-                                <li>
-                                    <a href="cart.html">
-                                        <img src="img/icons/add_to_cart.png" alt="icons">
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <img src="img/icons/compare_icon.png" alt="icons">
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="wishlist.html">
-                                        <img src="img/icons/wishlist_icon.png" alt="icons">
-                                    </a>
-                                </li>
-                                <li>
-                                    <a title="Quick View" class="quickview" href="#">
-                                        <img src="img/icons/quick_view.png" alt="icons">
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="content">
-                            <h4>
-                                <a href="single-product.html">Easin Glasses</a>
-                            </h4>
-                            <ul class="price">
-                                <li>$35</li>
-                                <li class="old-price">$35</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- End Single Product -->
-            <!-- Start Single Product -->
-            <div class="col-lg-3 col-xl-3 col-sm-6 col-12">
-                <div class="product">
-                    <div class="thumb">
-                        <a href="single-product.html">
-                            <img src="img/product/product-4.jpg" alt="product img">
-                        </a>
-                        <div class="product_action">
-                            <h4>
-                                <a href="single-product.html">Macrox Glasses</a>
-                            </h4>
-                            <ul class="cart_action">
-                                <li>
-                                    <a href="cart.html">
-                                        <img src="img/icons/add_to_cart.png" alt="icons">
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <img src="img/icons/compare_icon.png" alt="icons">
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="wishlist.html">
-                                        <img src="img/icons/wishlist_icon.png" alt="icons">
-                                    </a>
-                                </li>
-                                <li>
-                                    <a title="Quick View" class="quickview" href="#">
-                                        <img src="img/icons/quick_view.png" alt="icons">
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="content">
-                            <h4>
-                                <a href="single-product.html">Macrox Glasses</a>
-                            </h4>
-                            <ul class="price">
-                                <li>$35</li>
-                                <li class="old-price">$35</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- End Single Product -->
+                    <!-- End Single Product -->
+                    <% }) %>
+
         </div>
     </div>
 </div>
 <!-- End Product Area -->
 
-<!-- Start Shipping Service -->
-<div class="shipping_service bg_image--3 ptb--90">
-    <div class="shipping_wrap">
-        <div class="row">
 
-            <!-- Start Single -->
-            <div class="col-lg-6 col-xl-3 col-sm-6 col-12">
-                <div class="service item_1">
-                    <div class="icon">
-                        <img src="img/icons/ship_icon_1.png" alt="icon">
-                    </div>
-                    <div class="content">
-                        <h3>Free home delivery</h3>
-                        <p>Eye chasmish are very important for thos whos have some difficult</p>
-                    </div>
-                </div>
-            </div>
-            <!-- End Single -->
-            <!-- Start Single -->
-            <div class="col-lg-6 col-xl-3 col-sm-6 col-12">
-                <div class="service item_2">
-                    <div class="icon">
-                        <img src="img/icons/ship_icon_2.png" alt="icon">
-                    </div>
-                    <div class="content">
-                        <h3>Quality Products</h3>
-                        <p>Eye chasmish are very important for thos whos have some difficult</p>
-                    </div>
-                </div>
-            </div>
-            <!-- End Single -->
-            <!-- Start Single -->
-            <div class="col-lg-6 col-xl-3 col-sm-6 col-12">
-                <div class="service item_3">
-                    <div class="icon">
-                        <img src="img/icons/ship_icon_3.png" alt="icon">
-                    </div>
-                    <div class="content">
-                        <h3>Gift Voucher</h3>
-                        <p>Eye chasmish are very important for thos whos have some difficult</p>
-                    </div>
-                </div>
-            </div>
-            <!-- End Single -->
-            <!-- Start Single -->
-            <div class="col-lg-6 col-xl-3 col-sm-6 col-12">
-                <div class="service item_4">
-                    <div class="icon">
-                        <img src="img/icons/ship_icon_4.png" alt="icon">
-                    </div>
-                    <div class="content">
-                        <h3>3 Days easy return</h3>
-                        <p>Eye chasmish are very important for thos whos have some difficult</p>
-                    </div>
-                </div>
-            </div>
-            <!-- End Single -->
+        <% if (data.sections.filter((s,i)=> {return s.name == 'Bottom Banner - Shipping Service'}).length == 0) { %>
+            <!-- Start Shipping Service -->
+            <div class="shipping_service bg_image--3 ptb--90">
+                <div class="shipping_wrap">
+                    <div class="row">
 
-        </div>
-    </div>
-</div>
-<!-- End Shipping Service -->
+                        <!-- Start Single -->
+                        <div class="col-lg-6 col-xl-3 col-sm-6 col-12">
+                            <div class="service item_1">
+                                <div class="icon">
+                                    <img src="img/icons/ship_icon_1.png" alt="icon">
+                                </div>
+                                <div class="content">
+                                    <h3>Free home delivery</h3>
+                                    <p>Eye chasmish are very important for thos whos have some difficult</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- End Single -->
+                        <!-- Start Single -->
+                        <div class="col-lg-6 col-xl-3 col-sm-6 col-12">
+                            <div class="service item_2">
+                                <div class="icon">
+                                    <img src="img/icons/ship_icon_2.png" alt="icon">
+                                </div>
+                                <div class="content">
+                                    <h3>Quality Products</h3>
+                                    <p>Eye chasmish are very important for thos whos have some difficult</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- End Single -->
+                        <!-- Start Single -->
+                        <div class="col-lg-6 col-xl-3 col-sm-6 col-12">
+                            <div class="service item_3">
+                                <div class="icon">
+                                    <img src="img/icons/ship_icon_3.png" alt="icon">
+                                </div>
+                                <div class="content">
+                                    <h3>Gift Voucher</h3>
+                                    <p>Eye chasmish are very important for thos whos have some difficult</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- End Single -->
+                        <!-- Start Single -->
+                        <div class="col-lg-6 col-xl-3 col-sm-6 col-12">
+                            <div class="service item_4">
+                                <div class="icon">
+                                    <img src="img/icons/ship_icon_4.png" alt="icon">
+                                </div>
+                                <div class="content">
+                                    <h3>3 Days easy return</h3>
+                                    <p>Eye chasmish are very important for thos whos have some difficult</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- End Single -->
+
+                    </div>
+                </div>
+            </div>
+            <!-- End Shipping Service -->
+            <% } else { %>
+                <% bottom_content = data.sections.filter((s,i)=> {return s.name == 'Bottom Banner - Shipping Service'})[0] %>
+                <div class="shipping_service bg_image--3 ptb--90">
+                    <div class="shipping_wrap">
+                        <div class="row">
+                            <% if (bottom_content.content1 != null ) { %>
+                            <div class="<%- bottom_content.content1_class_list %>"">
+                                <%- bottom_content.content1 %>
+                            </div>
+                            <% }%>
+                            <% if (bottom_content.content2 != null ) { %>
+                                <div class="<%- bottom_content.content2_class_list %>"">
+                                    <%- bottom_content.content2 %>
+                                </div>
+                            <% }%>
+                            <% if (bottom_content.content3 != null ) { %>
+                                <div class="<%- bottom_content.content3_class_list %>"">
+                                    <%- bottom_content.content3 %>
+                                </div>
+                            <% }%>
+                            <% if (bottom_content.content4 != null ) { %>
+                                <div class="<%- bottom_content.content4_class_list %>"">
+                                    <%- bottom_content.content4 %>
+                                </div>
+                            <% }%>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <% }%>
