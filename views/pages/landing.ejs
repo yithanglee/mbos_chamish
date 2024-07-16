@@ -1,30 +1,30 @@
 <!-- Start Slider Area -->
 <div class="slider_area slide_active">
 
-    <!-- Start Single Slide -->
-    <div class="slide slide_fixed_height bg_image--1 d-flex align-items-center poss_relative animation__style01">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-12">
+  <!-- Start Single Slide -->
+  <div class="slide slide_fixed_height bg_image--1 d-flex align-items-center poss_relative animation__style01">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-lg-12">
 
-                    <div class="slide_text">
-                        <h3>Unbelievable low prices</h3>
-                        <h1>GLASSES FOR
-                            <br> MEN & WOMEN
-                        </h1>
-                        <a href="#">Buy Now</a>
-                    </div>
+          <div class="slide_text">
+            <h3>Unbelievable low prices</h3>
+            <h1>GLASSES FOR
+              <br> MEN & WOMEN
+            </h1>
+            <a href="#">Buy Now</a>
+          </div>
 
-                    <div class="rotate_titlE">
-                        <h2>GET UP TO
-                            <span>65%</span> Off
-                        </h2>
-                    </div>
-                </div>
-            </div>
+          <div class="rotate_titlE">
+            <h2>GET UP TO
+              <span>65%</span> Off
+            </h2>
+          </div>
         </div>
+      </div>
     </div>
-    <!-- End Single Slide -->
+  </div>
+  <!-- End Single Slide -->
 
 
 </div>
@@ -34,54 +34,72 @@
 </script>
 <!-- Start Product Area -->
 <div class="product_area section-pt-xl section-pb-xl bg-white">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="section_title text-center">
-                    <h2>LATEST SAFETY GLASSES</h2>
-                    <p>Eyes are very important for thos whos have some difficult in their eye to see every
-                        hing clearly and perfectly</p>
-                </div>
-            </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <% if (data.sections.filter((s,i)=> {return s.name == 'First Product Section'}).length == 0) { %>
+        <div class="section_title text-center">
+          <h2>LATEST SAFETY GLASSES</h2>
+          <p>Eyes are very important for thos whos have some difficult in their eye to see every
+            hing clearly and perfectly</p>
         </div>
-        <div class="row mt--20">
+        <% } else { %>
+        <%  center_content = data.sections.filter((s,i)=> {return s.name == 'First Product Section'})[0] 
+                const contentFields = ['content1', 'content2', 'content3', 'content4'];
+                contentFields.forEach((field) => {
+                let content = center_content[field];
+                let classList = center_content[field + '_class_list'];
+                
+                if (content != null) {   %>
+        <div class="<%- classList %>">
+          <%- content %>
+        </div>
+        <%
+                    }
+                });
+                    %>
+        <% } %>
 
-            <% data.products.forEach(product=> { %>
-                <!-- Start Single Product -->
-                <div class="col-lg-3 col-xl-3 col-sm-6 col-12">
-                    <div class="product">
-                        <a class="navi" href="single-product/<%= product.id %>">
-                            <div class="thumb" style="
+      </div>
+    </div>
+    <div class="row mt--20">
+
+      <% data.products.forEach(product=> { %>
+      <!-- Start Single Product -->
+      <div class="col-lg-3 col-xl-3 col-sm-6 col-12">
+        <div class="product">
+          <a class="navi" href="single-product/<%= product.id %>">
+            <div class="thumb" style="
                             height: 24vh;
                             background-image: url('<%= data.blogUrl %>/<%= product.img_url%>');
                             background-size: contain;
                             background-repeat: no-repeat;
                             background-position: center;">
-                                <div class="content">
-                                    <h4>
-                                        <%= product.name %>
-                                    </h4>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                <!-- End Single Product -->
-                <% }) %>
-
-
+              <div class="content">
+                <h4>
+                  <%= product.name %>
+                </h4>
+              </div>
+            </div>
+          </a>
         </div>
+      </div>
+      <!-- End Single Product -->
+      <% }) %>
+
+
     </div>
+  </div>
 </div>
 <!-- End Product Area -->
 
 <!-- Start Banner Area 645 360 -->
 <div class="banner_area">
-    <div class="row g-1">
-        <% JSON.parse(data.banners).forEach(item=> { %>
-            <div class="col-lg-4 col-sm-6 col-12">
-                <div class="banner">
-                    <div class="thumb" style="
+  <div class="row g-1">
+    <% JSON.parse(data.banners).forEach(item=> { %>
+    <div class="col-lg-4 col-sm-6 col-12">
+      <div class="banner">
+        <div class="thumb" style="
                 height: 40vh;
                 background-image: url('<%= data.blogUrl %>/<%= item.img_url%>');
                 background-size: cover;
@@ -90,299 +108,370 @@
 
 
 
-                    </div>
-                </div>
-            </div>
-            <% }) %>
-
+        </div>
+      </div>
     </div>
+    <% }) %>
+
+  </div>
 </div>
 <!-- End Banner Area -->
 
 <!-- Start Product Area -->
 <div class="product_area section-pt-xl section-pb-xl bg-white">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="section_title text-center">
-                    <h2>PRESCRIPTION SAFETY GLASSES</h2>
-                    <p>Eye are very important for thos whos have some difficult in their eye to see every
-                        hing clearly and perfectly</p>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="product_tab_name justify-content-center nav" role="tablist">
-                    <a class="active" href="#item0" data-bs-toggle="tab"> all</a>
-                    <% data.brands.forEach( brand=> { %>
-                        <a href="#item<%= brand.id%>" data-bs-toggle="tab">
-                            <%= brand.name%>
-                        </a>
-                        <% }) %>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
 
 
-                </div>
-            </div>
+        <% if (data.sections.filter((s,i)=> {return s.name == 'Second Product Section'}).length == 0) { %>
+        <div class="section_title text-center">
+          <h2>PRESCRIPTION SAFETY GLASSES</h2>
+          <p>Eye are very important for thos whos have some difficult in their eye to see every
+            hing clearly and perfectly</p>
         </div>
-        <div class="tab_content">
-            <!-- Start Single Content -->
-            <div class="row single_content tab-pane fade show active" id="item0" role="tabpanel">
-                <% prescription_category=data.categories.filter((c,i)=> {return c.name == 'Prescription' })[0]
+
+        <% } else { %>
+        <%  center_content = data.sections.filter((s,i)=> {return s.name == 'Second Product Section'})[0] 
+                const contentFields = ['content1', 'content2', 'content3', 'content4'];
+                contentFields.forEach((field) => {
+                let content = center_content[field];
+                let classList = center_content[field + '_class_list'];
+                
+                if (content != null) {   %>
+        <div class="<%- classList %>">
+          <%- content %>
+        </div>
+        <%
+                    }
+                });
+                    %>
+        <% } %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="product_tab_name justify-content-center nav" role="tablist">
+          <a class="active" href="#item0" data-bs-toggle="tab"> all</a>
+          <% data.brands.forEach( brand=> { %>
+          <a href="#item<%= brand.id%>" data-bs-toggle="tab">
+            <%= brand.name%>
+          </a>
+          <% }) %>
+
+
+        </div>
+      </div>
+    </div>
+    <div class="tab_content">
+      <!-- Start Single Content -->
+      <div class="row single_content tab-pane fade show active" id="item0" role="tabpanel">
+        <% prescription_category=data.categories.filter((c,i)=> {return c.name == 'Prescription' })[0]
                     prescription_products = data.products.filter((v,i) => { return v.category_id ==
                     prescription_category.id })
                     %>
-                    <% prescription_products.forEach(product=> { %>
+        <% prescription_products.forEach(product=> { %>
 
-                        <!-- Start Single Product -->
-                        <div class="col-lg-4 col-xl-3 col-sm-6 col-12">
-                            <div class="product">
-                                <a class="navi" href="single-product/<%= product.id %>">
-                                    <div class="thumb" style="
+        <!-- Start Single Product -->
+        <div class="col-lg-4 col-xl-3 col-sm-6 col-12">
+          <div class="product">
+            <a class="navi" href="single-product/<%= product.id %>">
+              <div class="thumb" style="
                         height: 24vh;
                         background-image: url('<%= data.blogUrl %>/<%= product.img_url%>');
                         background-size: contain;
                         background-repeat: no-repeat;
                         background-position: center;">
-                                        <div class="content">
-                                            <h4>
-                                                <%= product.name %>
-                                            </h4>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                        <!-- End Single Product -->
-                        <% }) %>
-            </div>
-            <!-- End Single Content -->
-            <% data.brands.forEach( brand=> { %>
-                <!-- Start Single Content -->
-                <div class="row single_content tab-pane fade" id="item<%= brand.id %>" role="tabpanel">
-                    <% prescription_products.filter((v,i)=> { return v.brand_id == brand.id }).forEach(product=> { %>
-                        <!-- Start Single Product -->
-                        <div class="col-lg-4 col-xl-3 col-sm-6 col-12">
-                            <div class="product">
-                                <a class="navi" href="single-product/<%= product.id %>">
-                                    <div class="thumb" style="
-                        height: 24vh;
-                        background-image: url('<%= data.blogUrl %>/<%= product.img_url%>');
-                        background-size: contain;
-                        background-repeat: no-repeat;
-                        background-position: center;">
-                                        <div class="content">
-                                            <h4>
-                                                <%= product.name %>
-                                            </h4>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                        <!-- End Single Product -->
-                        <% }) %>
-
+                <div class="content">
+                  <h4>
+                    <%= product.name %>
+                  </h4>
                 </div>
-                <!-- End Single Content -->
-                <% }) %>
-
+              </div>
+            </a>
+          </div>
         </div>
+        <!-- End Single Product -->
+        <% }) %>
+      </div>
+      <!-- End Single Content -->
+      <% data.brands.forEach( brand=> { %>
+      <!-- Start Single Content -->
+      <div class="row single_content tab-pane fade" id="item<%= brand.id %>" role="tabpanel">
+        <% prescription_products.filter((v,i)=> { return v.brand_id == brand.id }).forEach(product=> { %>
+        <!-- Start Single Product -->
+        <div class="col-lg-4 col-xl-3 col-sm-6 col-12">
+          <div class="product">
+            <a class="navi" href="single-product/<%= product.id %>">
+              <div class="thumb" style="
+                        height: 24vh;
+                        background-image: url('<%= data.blogUrl %>/<%= product.img_url%>');
+                        background-size: contain;
+                        background-repeat: no-repeat;
+                        background-position: center;">
+                <div class="content">
+                  <h4>
+                    <%= product.name %>
+                  </h4>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+        <!-- End Single Product -->
+        <% }) %>
+
+      </div>
+      <!-- End Single Content -->
+      <% }) %>
+
     </div>
+  </div>
 </div>
 <!-- End Product Area -->
-
+<% if (data.sections.filter((s,i)=> {return s.name == 'Center Banner'}).length == 0) { %>
 <!-- Start How To Work Area -->
 <div class="work_area bg-dark">
-    <div class="row g-0 align-items-center">
-        <div class="col-lg-12 col-12 col-xl-8">
-            <div class="row working_wrapper">
-                <div class="col-lg-12 col-xl-4">
-                    <div class="work_wrap">
-                        <h3>It’s very simple & easy</h3>
-                        <h2>BUY OUR PRODUCTS VERY SIMPLE WAY</h2>
-                        <h4>GET
-                            <span>PROMO CODE</span> HERE
-                        </h4>
-                    </div>
-                </div>
-                <div class="col-lg-12 col-xl-8">
-                    <div class="work_process d-flex flex-wrap">
-
-                        <div class="work w-50">
-                            <h3>01. Search your chasmish</h3>
-                            <p>Eye chasmish are very important for thos whos have some difficult </p>
-                        </div>
-
-                        <div class="work w-50">
-                            <h3>02. Customize you chasmish</h3>
-                            <p>Eye chasmish are very important for thos whos have some difficult </p>
-                        </div>
-
-                        <div class="work w-50">
-                            <h3>03. Quickly checkout</h3>
-                            <p>Eye chasmish are very important for thos whos have some difficult </p>
-                        </div>
-
-                        <div class="work w-50">
-                            <h3>04. Receive your chasmish</h3>
-                            <p>Eye chasmish are very important for thos whos have some difficult </p>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
+  <div class="row g-0 align-items-center">
+    <div class="col-lg-12 col-12 col-xl-8">
+      <div class="row working_wrapper">
+        <div class="col-lg-12 col-xl-4">
+          <div class="work_wrap">
+            <h3>It’s very simple & easy</h3>
+            <h2>BUY OUR PRODUCTS VERY SIMPLE WAY</h2>
+            <h4>GET
+              <span>PROMO CODE</span> HERE
+            </h4>
+          </div>
         </div>
-        <div class="col-lg-6 col-xl-4">
-            <div class="banner">
-                <div class="thumb">
-                    <a href="#">
-                        <img src="img/banner/banner-4.jpg" alt="banner img">
-                    </a>
-                </div>
+        <div class="col-lg-12 col-xl-8">
+          <div class="work_process d-flex flex-wrap">
+
+            <div class="work w-50">
+              <h3>01. Search your chasmish</h3>
+              <p>Eye chasmish are very important for thos whos have some difficult </p>
             </div>
+
+            <div class="work w-50">
+              <h3>02. Customize you chasmish</h3>
+              <p>Eye chasmish are very important for thos whos have some difficult </p>
+            </div>
+
+            <div class="work w-50">
+              <h3>03. Quickly checkout</h3>
+              <p>Eye chasmish are very important for thos whos have some difficult </p>
+            </div>
+
+            <div class="work w-50">
+              <h3>04. Receive your chasmish</h3>
+              <p>Eye chasmish are very important for thos whos have some difficult </p>
+            </div>
+
+          </div>
         </div>
+      </div>
     </div>
+    <div class="col-lg-6 col-xl-4">
+      <div class="banner">
+        <div class="thumb">
+          <a href="#">
+            <img src="img/banner/banner-4.jpg" alt="banner img">
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 <!-- End How To Work Area -->
+
+<% } else { %>
+<% center_content = data.sections.filter((s,i)=> {return s.name == 'Center Banner'})[0] %>
+<div class="work_area bg-dark">
+  <div class="row g-0 align-items-center">
+    <% if (center_content.content1 != null ) { %>
+    <div class="<%- center_content.content1_class_list %>"">
+                        <%- center_content.content1 %>
+                    </div>
+                    <% }%>
+                    <% if (center_content.content2 != null ) { %>
+                        <div class=" <%- center_content.content2_class_list %>"">
+      <%- center_content.content2 %>
+    </div>
+    <% }%>
+    <% if (center_content.content3 != null ) { %>
+    <div class="<%- center_content.content3_class_list %>"">
+                            <%- center_content.content3 %>
+                        </div>
+                    <% }%>
+                    <% if (center_content.content4 != null ) { %>
+                        <div class=" <%- center_content.content4_class_list %>"">
+      <%- center_content.content4 %>
+    </div>
+    <% }%>
+  </div>
+</div>
+
+
+<% } %>
 
 
 
 <!-- Start Product Area -->
 <div class="product_area section-pt-xl section-pb-xl bg-white">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="section_title text-center">
-                    <h2>PLANO GLASSES</h2>
-                    <p>Eye chasmish are very important for thos whos have some difficult in their eye to see every
-                        hing clearly and perfectly</p>
-                </div>
-            </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+
+
+
+        <% if (data.sections.filter((s,i)=> {return s.name == 'Third Product Section'}).length == 0) { %>
+        <div class="section_title text-center">
+          <h2>PLANO GLASSES</h2>
+          <p>Eye chasmish are very important for thos whos have some difficult in their eye to see every
+            hing clearly and perfectly</p>
         </div>
-        <!--plano only-->
-        <div class="row mt--20">
-            <% plano_category=data.categories.filter((c,i)=> {return c.name == 'Plano' })[0] %>
-                <% data.products.filter((v,i)=> { return v.category_id == plano_category.id }).forEach(product=> { %>
-                    <!-- Start Single Product -->
-                    <div class="col-lg-4 col-xl-3 col-sm-6 col-12">
-                        <div class="product">
-                            <a class="navi" href="single-product/<%= product.id %>">
-                                <div class="thumb" style="
+
+        <% } else { %>
+        <%  center_content = data.sections.filter((s,i)=> {return s.name == 'Third Product Section'})[0] 
+                const contentFields = ['content1', 'content2', 'content3', 'content4'];
+                contentFields.forEach((field) => {
+                let content = center_content[field];
+                let classList = center_content[field + '_class_list'];
+                
+                if (content != null) {   %>
+        <div class="<%- classList %>">
+          <%- content %>
+        </div>
+        <%
+                    }
+                });
+                    %>
+        <% } %>
+      </div>
+    </div>
+    <!--plano only-->
+    <div class="row mt--20">
+      <% plano_category=data.categories.filter((c,i)=> {return c.name == 'Plano' })[0] %>
+      <% data.products.filter((v,i)=> { return v.category_id == plano_category.id }).forEach(product=> { %>
+      <!-- Start Single Product -->
+      <div class="col-lg-4 col-xl-3 col-sm-6 col-12">
+        <div class="product">
+          <a class="navi" href="single-product/<%= product.id %>">
+            <div class="thumb" style="
                     height: 24vh;
                     background-image: url('<%= data.blogUrl %>/<%= product.img_url%>');
                     background-size: contain;
                     background-repeat: no-repeat;
                     background-position: center;">
-                                    <div class="content">
-                                        <h4>
-                                            <%= product.name %>
-                                        </h4>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                    <!-- End Single Product -->
-                    <% }) %>
-
+              <div class="content">
+                <h4>
+                  <%= product.name %>
+                </h4>
+              </div>
+            </div>
+          </a>
         </div>
+      </div>
+      <!-- End Single Product -->
+      <% }) %>
+
     </div>
+  </div>
 </div>
 <!-- End Product Area -->
 
 
-        <% if (data.sections.filter((s,i)=> {return s.name == 'Bottom Banner - Shipping Service'}).length == 0) { %>
-            <!-- Start Shipping Service -->
-            <div class="shipping_service bg_image--3 ptb--90">
-                <div class="shipping_wrap">
-                    <div class="row">
+<% if (data.sections.filter((s,i)=> {return s.name == 'Bottom Banner - Shipping Service'}).length == 0) { %>
+<!-- Start Shipping Service -->
+<div class="shipping_service bg_image--3 ptb--90">
+  <div class="shipping_wrap">
+    <div class="row">
 
-                        <!-- Start Single -->
-                        <div class="col-lg-6 col-xl-3 col-sm-6 col-12">
-                            <div class="service item_1">
-                                <div class="icon">
-                                    <img src="img/icons/ship_icon_1.png" alt="icon">
-                                </div>
-                                <div class="content">
-                                    <h3>Free home delivery</h3>
-                                    <p>Eye chasmish are very important for thos whos have some difficult</p>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- End Single -->
-                        <!-- Start Single -->
-                        <div class="col-lg-6 col-xl-3 col-sm-6 col-12">
-                            <div class="service item_2">
-                                <div class="icon">
-                                    <img src="img/icons/ship_icon_2.png" alt="icon">
-                                </div>
-                                <div class="content">
-                                    <h3>Quality Products</h3>
-                                    <p>Eye chasmish are very important for thos whos have some difficult</p>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- End Single -->
-                        <!-- Start Single -->
-                        <div class="col-lg-6 col-xl-3 col-sm-6 col-12">
-                            <div class="service item_3">
-                                <div class="icon">
-                                    <img src="img/icons/ship_icon_3.png" alt="icon">
-                                </div>
-                                <div class="content">
-                                    <h3>Gift Voucher</h3>
-                                    <p>Eye chasmish are very important for thos whos have some difficult</p>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- End Single -->
-                        <!-- Start Single -->
-                        <div class="col-lg-6 col-xl-3 col-sm-6 col-12">
-                            <div class="service item_4">
-                                <div class="icon">
-                                    <img src="img/icons/ship_icon_4.png" alt="icon">
-                                </div>
-                                <div class="content">
-                                    <h3>3 Days easy return</h3>
-                                    <p>Eye chasmish are very important for thos whos have some difficult</p>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- End Single -->
+      <!-- Start Single -->
+      <div class="col-lg-6 col-xl-3 col-sm-6 col-12">
+        <div class="service item_1">
+          <div class="icon">
+            <img src="img/icons/ship_icon_1.png" alt="icon">
+          </div>
+          <div class="content">
+            <h3>Free home delivery</h3>
+            <p>Eye chasmish are very important for thos whos have some difficult</p>
+          </div>
+        </div>
+      </div>
+      <!-- End Single -->
+      <!-- Start Single -->
+      <div class="col-lg-6 col-xl-3 col-sm-6 col-12">
+        <div class="service item_2">
+          <div class="icon">
+            <img src="img/icons/ship_icon_2.png" alt="icon">
+          </div>
+          <div class="content">
+            <h3>Quality Products</h3>
+            <p>Eye chasmish are very important for thos whos have some difficult</p>
+          </div>
+        </div>
+      </div>
+      <!-- End Single -->
+      <!-- Start Single -->
+      <div class="col-lg-6 col-xl-3 col-sm-6 col-12">
+        <div class="service item_3">
+          <div class="icon">
+            <img src="img/icons/ship_icon_3.png" alt="icon">
+          </div>
+          <div class="content">
+            <h3>Gift Voucher</h3>
+            <p>Eye chasmish are very important for thos whos have some difficult</p>
+          </div>
+        </div>
+      </div>
+      <!-- End Single -->
+      <!-- Start Single -->
+      <div class="col-lg-6 col-xl-3 col-sm-6 col-12">
+        <div class="service item_4">
+          <div class="icon">
+            <img src="img/icons/ship_icon_4.png" alt="icon">
+          </div>
+          <div class="content">
+            <h3>3 Days easy return</h3>
+            <p>Eye chasmish are very important for thos whos have some difficult</p>
+          </div>
+        </div>
+      </div>
+      <!-- End Single -->
 
-                    </div>
-                </div>
-            </div>
-            <!-- End Shipping Service -->
-            <% } else { %>
-                <% bottom_content = data.sections.filter((s,i)=> {return s.name == 'Bottom Banner - Shipping Service'})[0] %>
-                <div class="shipping_service bg_image--3 ptb--90">
-                    <div class="shipping_wrap">
-                        <div class="row">
-                            <% if (bottom_content.content1 != null ) { %>
-                            <div class="<%- bottom_content.content1_class_list %>"">
+    </div>
+  </div>
+</div>
+<!-- End Shipping Service -->
+<% } else { %>
+<% bottom_content = data.sections.filter((s,i)=> {return s.name == 'Bottom Banner - Shipping Service'})[0] %>
+<div class="shipping_service bg_image--3 ptb--90">
+  <div class="shipping_wrap">
+    <div class="row">
+      <% if (bottom_content.content1 != null ) { %>
+      <div class="<%- bottom_content.content1_class_list %>"">
                                 <%- bottom_content.content1 %>
                             </div>
                             <% }%>
                             <% if (bottom_content.content2 != null ) { %>
-                                <div class="<%- bottom_content.content2_class_list %>"">
-                                    <%- bottom_content.content2 %>
-                                </div>
-                            <% }%>
-                            <% if (bottom_content.content3 != null ) { %>
-                                <div class="<%- bottom_content.content3_class_list %>"">
+                                <div class=" <%- bottom_content.content2_class_list %>"">
+        <%- bottom_content.content2 %>
+      </div>
+      <% }%>
+      <% if (bottom_content.content3 != null ) { %>
+      <div class="<%- bottom_content.content3_class_list %>"">
                                     <%- bottom_content.content3 %>
                                 </div>
                             <% }%>
                             <% if (bottom_content.content4 != null ) { %>
-                                <div class="<%- bottom_content.content4_class_list %>"">
-                                    <%- bottom_content.content4 %>
-                                </div>
-                            <% }%>
-                            
-                        </div>
-                    </div>
-                </div>
+                                <div class=" <%- bottom_content.content4_class_list %>"">
+        <%- bottom_content.content4 %>
+      </div>
+      <% }%>
 
-                <% }%>
+    </div>
+  </div>
+</div>
+
+<% }%>
