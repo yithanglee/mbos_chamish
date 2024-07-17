@@ -82,7 +82,7 @@ router.get('/blog_updates', async function (req, res, next) {
                         <div class="account">
                             <ul>
                                 <li>
-                                    <a href="https://wa.me/60122664254?text=Hello%20there!">012 2664 254</a>
+                                    <a href="https://wa.me/60122664254?text=Hello%20there!"><img url='/img/wa150.png'> 012 2664 254</a>
                                 </li>
                                 
                             </ul>
