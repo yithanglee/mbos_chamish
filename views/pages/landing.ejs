@@ -1,33 +1,51 @@
 <!-- Start Slider Area -->
 <div class="slider_area slide_active">
+    <% JSON.parse(data.banners).filter((v,i) => { return v.is_banner == false}).forEach(item=> { %>
 
-  <!-- Start Single Slide -->
-  <div class="slide slide_fixed_height bg_image--1 d-flex align-items-center poss_relative animation__style01">
-    <div class="container">
-      <div class="row align-items-center">
-        <div class="col-lg-12">
+        <!-- Start Single Slide -->
+        <div class="slide slide_fixed_height d-flex align-items-center poss_relative animation__style01" style="
+            background-image: url('<%= data.blogUrl %>/<%= item.img_url%>');
+                background-repeat: no-repeat;
+                background-size: cover;
+                background-position: center center;
+            ">
+            <div class="container">
+            <% if (item.content == null ) {%>
+                <div class="row align-items-center">
+                    <div class="col-lg-12">
+                      <div class="slide_text">
+                        <h3>Unbelievable low prices</h3>
+                        <h1>GLASSES FOR
+                          <br> MEN & WOMEN
+                        </h1>
+                        <a href="#">Buy Now</a>
+                      </div>
+            
+                      <div class="rotate_titlE">
+                        <h2>GET UP TO
+                          <span>65%</span> Off
+                        </h2>
+                      </div>
+                    </div>
+                  </div>
+            <% } else { %>
+                <div class="row align-items-center">
+                    <div class="<%= item.class_list %>">
+                        <%- item.content%>
+                    </div>
+                </div>
+            <% } %>
 
-          <div class="slide_text">
-            <h3>Unbelievable low prices</h3>
-            <h1>GLASSES FOR
-              <br> MEN & WOMEN
-            </h1>
-            <a href="#">Buy Now</a>
-          </div>
-
-          <div class="rotate_titlE">
-            <h2>GET UP TO
-              <span>65%</span> Off
-            </h2>
-          </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </div>
-  <!-- End Single Slide -->
+        <!-- End Single Slide -->
+        <% }) %>
+
 
 
 </div>
+
+
 <!-- End Slider Area -->
 <script>
 
@@ -96,8 +114,9 @@
 <!-- Start Banner Area 645 360 -->
 <div class="banner_area">
   <div class="row g-1">
-    <% JSON.parse(data.banners).forEach(item=> { %>
-    <div class="col-lg-4 col-sm-6 col-12">
+    <% JSON.parse(data.banners).filter((v,i) => { return v.is_banner == true}).forEach(item=> { %>
+
+    <div class="<%= item.class_list %>">
       <div class="banner">
         <div class="thumb" style="
                 height: 40vh;
