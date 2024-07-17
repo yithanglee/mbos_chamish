@@ -74,7 +74,22 @@ router.get('/blog_updates', async function (req, res, next) {
                     </div>
                     <div class="col-xl-9 col-lg-10 col-8 position-relative">
                         <div class="header_right_sidebar">
-        
+
+
+
+
+                    <div class="login_account">
+                        <div class="account">
+                            <ul>
+                                <li>
+                                    <a href="https://wa.me/60122664254?text=Hello%20there!">012 2664 254</a>
+                                </li>
+                                
+                            </ul>
+                        </div>
+                    </div>
+
+                        
                             <div class="glass_toggle_menu">
                                 <nav class="mainmenu_nav mainmenu__nav">
                                     <ul class="main_menu">
