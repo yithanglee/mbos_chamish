@@ -27,6 +27,11 @@ router.get('/blog_updates', async function (req, res, next) {
     var nroute = [], li_route = []
     try {
         console.log(blogUrl)
+
+
+        const apiUrl0 = blogUrl + "/api/webhook?scope=get_contact"; // Adjust the API URL as needed
+        const response0 = await axios.get(apiUrl0);
+       
         const apiUrl = blogUrl + "/api/webhook?scope=get_pages"; // Adjust the API URL as needed
         const response = await axios.get(apiUrl);
         const data = response.data;
@@ -59,8 +64,6 @@ router.get('/blog_updates', async function (req, res, next) {
         
         `
         fs.writeFileSync(`./public/js/route.js`, new_routes, 'utf8');
-
-
         var blog_nav_html = `<!-- Header -->
         <header class="header chasmishco_header">
             <div class="container">
@@ -74,24 +77,17 @@ router.get('/blog_updates', async function (req, res, next) {
                     </div>
                     <div class="col-xl-9 col-lg-10 col-8 position-relative">
                         <div class="header_right_sidebar">
-
-
-
-
-                    <div class="login_account">
-                        <div class="account">
-                            <ul>
-                                <li>
-                                <a href="https://wa.me/60122664254?text=Hello%20there!"><img src="/img/wa150.png" style="
-                                width: 24px;
-                            "> 012-2664 254 | Damien</a>
-                                </li>
-                                
-                            </ul>
-                        </div>
-                    </div>
-
-                        
+                            <div class="login_account">
+                                <div class="account">
+                                    <ul>
+                                        <li>
+                                            <a href="` +  (response0.data.plain_content2 || 'https://wa.me/60122664254?text=Hello%20there!') + `">
+                                                <img src="/img/wa150.png" style="width: 24px;">`+ response0.data.plain_content1 +`
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
                             <div class="glass_toggle_menu">
                                 <nav class="mainmenu_nav mainmenu__nav">
                                     <ul class="main_menu">
@@ -101,12 +97,10 @@ router.get('/blog_updates', async function (req, res, next) {
                                         `+ li_route.join("") +`
                                     </ul>
                                 </nav>
-        
                                 <div class="hamburger-box button mobile-toggle">
                                     <span class="mobile-toggle__icon"></span>
                                 </div>
                             </div>
-        
                             <div class="mobile-menu-toggle d-lg-none">
                                 <button class="menu-toggle">
                                     <span></span>
@@ -114,24 +108,20 @@ router.get('/blog_updates', async function (req, res, next) {
                                     <span></span>
                                 </button>
                             </div>
-        
                         </div>
                     </div>
                 </div>
-        
             </div>
         </header>
         
         <!-- Mobile Menu Start -->
         <div class="mobile-menu mobile-menu-items">
-        
             <div class="mobile-menu-close">
                 <button class="close-toggle">
                     <span></span>
                     <span></span>
                 </button>
             </div>
-        
             <ul class="main_menu">
                 <li>
                     <a class="navi" href="/home">Home</a>
@@ -141,9 +131,6 @@ router.get('/blog_updates', async function (req, res, next) {
         </div>
         <div class="menu-overlay"></div>
         <!-- Mobile Menu End -->
-        
-        
-        
         <!-- Cart Overlay -->
         <div class="body_overlay"></div>
         <!--// Header -->`
