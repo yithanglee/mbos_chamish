@@ -20,29 +20,29 @@ const destDir = path.join(__dirname, 'public/html/v2');
 // Function to create the symlink
 function createSymlink() {
   fs.symlink(srcDir, destDir, 'dir', (err) => {
-      if (err) {
-          console.error('Error creating symlink:', err);
-      } else {
-          console.log('Symlink created successfully');
-      }
+    if (err) {
+      console.error('Error creating symlink:', err);
+    } else {
+      console.log('Symlink created successfully');
+    }
   });
 }
 
 // Check if the symlink already exists
 fs.access(destDir, fs.constants.F_OK, (err) => {
   if (!err) {
-      // Symlink exists, delete it first
-      fs.unlink(destDir, (unlinkErr) => {
-          if (unlinkErr) {
-              console.error('Error deleting symlink:', unlinkErr);
-          } else {
-              console.log('Symlink deleted successfully');
-              createSymlink();
-          }
-      });
+    // Symlink exists, delete it first
+    fs.unlink(destDir, (unlinkErr) => {
+      if (unlinkErr) {
+        console.error('Error deleting symlink:', unlinkErr);
+      } else {
+        console.log('Symlink deleted successfully');
+        createSymlink();
+      }
+    });
   } else {
-      // Symlink does not exist, create it directly
-      createSymlink();
+    // Symlink does not exist, create it directly
+    createSymlink();
   }
 });
 var app = express();
@@ -54,8 +54,9 @@ app.use(
   helmet.contentSecurityPolicy({
     directives: {
       "form-action": ['payment.ipay88.com.my'],
-      defaultSrc: ["'self'"],
+      defaultSrc: ["'self'", "www.google.com"],
       "script-src-attr": ["'self'", "'unsafe-inline'"],
+      "frame-src": ["www.google.com"],
       scriptSrc: ["'self'", "'unsafe-eval'", "'unsafe-inline'", 'openstreetmap.org'],
       imgSrc: ["'self'", "localhost:4000", "localhost:5101", "blog.damienslab.com", 'tile.openstreetmap.org', '*.tile.openstreetmap.org'],
 
@@ -89,11 +90,11 @@ app.use((req, res, next) => {
 
   // Optional: Ignore 'www' as a subdomain
   if (subdomain === 'www') {
-      req.subdomain = null;  // or you could reassign it to something else
+    req.subdomain = null;  // or you could reassign it to something else
   } else {
-      req.subdomain = subdomain;
+    req.subdomain = subdomain;
   }
-  
+
   next();
 });
 app.use('/api/webhook', apiRouter);
