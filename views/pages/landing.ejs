@@ -1,45 +1,45 @@
 <!-- Start Slider Area -->
 <div class="slider_area slide_active">
-    <% JSON.parse(data.banners).filter((v,i) => { return v.is_banner == false}).forEach(item=> { %>
+  <% JSON.parse(data.banners).filter((v,i) => { return v.is_banner == false}).forEach(item=> { %>
 
-        <!-- Start Single Slide -->
-        <div class="slide slide_fixed_height d-flex align-items-center poss_relative animation__style01" style="
+  <!-- Start Single Slide -->
+  <div class="slide slide_fixed_height d-flex align-items-center poss_relative animation__style01" style="
             background-image: url('<%= data.blogUrl %>/<%= item.img_url%>');
                 background-repeat: no-repeat;
                 background-size: cover;
                 background-position: center center;
             ">
-            <div class="container">
-            <% if (item.content == null ) {%>
-                <div class="row align-items-center">
-                    <div class="col-lg-12">
-                      <div class="slide_text">
-                        <h3>Unbelievable low prices</h3>
-                        <h1>GLASSES FOR
-                          <br> MEN & WOMEN
-                        </h1>
-                        <a href="#">Buy Now</a>
-                      </div>
-            
-                      <div class="rotate_titlE">
-                        <h2>GET UP TO
-                          <span>65%</span> Off
-                        </h2>
-                      </div>
-                    </div>
-                  </div>
-            <% } else { %>
-                <div class="row align-items-center">
-                    <div class="<%= item.class_list %>">
-                        <%- item.content%>
-                    </div>
-                </div>
-            <% } %>
+    <div class="container">
+      <% if (item.content == null ) {%>
+      <div class="row align-items-center">
+        <div class="col-lg-12">
+          <div class="slide_text">
+            <h3>Unbelievable low prices</h3>
+            <h1>GLASSES FOR
+              <br> MEN & WOMEN
+            </h1>
+            <a href="#">Buy Now</a>
+          </div>
 
-            </div>
+          <div class="rotate_titlE">
+            <h2>GET UP TO
+              <span>65%</span> Off
+            </h2>
+          </div>
         </div>
-        <!-- End Single Slide -->
-        <% }) %>
+      </div>
+      <% } else { %>
+      <div class="row align-items-center">
+        <div class="<%= item.class_list %>">
+          <%- item.content%>
+        </div>
+      </div>
+      <% } %>
+
+    </div>
+  </div>
+  <!-- End Single Slide -->
+  <% }) %>
 
 
 
@@ -250,7 +250,7 @@
 <!-- End Product Area -->
 <% if (data.sections.filter((s,i)=> {return s.name == 'Center Banner'}).length == 0) { %>
 <!-- Start How To Work Area -->
-<div class="work_area bg-dark">
+<div class="work_area bg-dark d-none">
   <div class="row g-0 align-items-center">
     <div class="col-lg-12 col-12 col-xl-8">
       <div class="row working_wrapper">
@@ -468,26 +468,15 @@
 <div class="shipping_service bg_image--3 ptb--90">
   <div class="shipping_wrap">
     <div class="row">
-      <% if (bottom_content.content1 != null ) { %>
-      <div class="<%- bottom_content.content1_class_list %>"">
-                                <%- bottom_content.content1 %>
-                            </div>
-                            <% }%>
-                            <% if (bottom_content.content2 != null ) { %>
-                                <div class=" <%- bottom_content.content2_class_list %>"">
-        <%- bottom_content.content2 %>
-      </div>
-      <% }%>
-      <% if (bottom_content.content3 != null ) { %>
-      <div class="<%- bottom_content.content3_class_list %>"">
-                                    <%- bottom_content.content3 %>
-                                </div>
-                            <% }%>
-                            <% if (bottom_content.content4 != null ) { %>
-                                <div class=" <%- bottom_content.content4_class_list %>"">
-        <%- bottom_content.content4 %>
-      </div>
-      <% }%>
+      <p> We have support available for all our product and services.
+      </p>
+      <p>You can contact us if you need any further support. </p>
+
+      <a href="mailto:sales@mbos.com.my ">sales@mbos.com.my </a>
+
+
+
+
 
     </div>
   </div>
