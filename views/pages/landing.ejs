@@ -305,7 +305,7 @@
 
 <% } else { %>
 <% center_content = data.sections.filter((s,i)=> {return s.name == 'Center Banner'})[0] %>
-<div class="work_area bg-dark">
+<div class="work_area bg-dark d-none">
   <div class="row g-0 align-items-center">
     <% if (center_content.content1 != null ) { %>
     <div class="<%- center_content.content1_class_list %>"">
