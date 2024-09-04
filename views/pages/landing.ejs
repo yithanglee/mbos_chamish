@@ -123,42 +123,21 @@
 <!-- Start Banner Area 645 360 -->
 <div class="banner_area">
 
-  <div class="row g-1">
-    <div class="col-12">
 
-      <div class="banner" style="
-    width: 100%;
-    height: 80vh;
-">
-        <div class="thumb" style="
-                background-image: url('https://blog.damienslab.com//images/uploads/Screenshot 2024-07-15 173331.jpg');
-                background-size: contain;
-                background-repeat: no-repeat;
-                background-position: center;
-                height: 100%;
-                ">
-        </div>
-      </div>
-
-
-    </div>
-  </div>
-
-
-
-
-
-  <div class="row g-1 d-none">
+  <div class="row g-1 ">
     <% JSON.parse(data.banners).filter((v,i) => { return v.is_banner == true}).forEach(item=> { %>
 
     <div class="<%= item.class_list %>">
-      <div class="banner">
+      <div class="banner" style="
+    width: 100%;
+    height: 80vh;">
         <div class="thumb" style="
-                height: 40vh;
+      
                 background-image: url('<%= data.blogUrl %>/<%= item.img_url%>');
                 background-size: contain;
                 background-repeat: no-repeat;
-                background-position: center;">
+                background-position: center;
+                height: 100%;">
 
 
 
