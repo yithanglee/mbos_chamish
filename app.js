@@ -56,7 +56,7 @@ app.use(
       "form-action": ['payment.ipay88.com.my'],
       defaultSrc: ["'self'", "www.google.com"],
       "script-src-attr": ["'self'", "'unsafe-inline'"],
-      "frame-src": ["'self'", "www.google.com"],
+      "frame-src": ["'self'", "www.google.com", "challenges.cloudflare.com"],
       scriptSrc: ["'self'", "'unsafe-eval'", "'unsafe-inline'", 'openstreetmap.org', 'static.cloudflareinsights.com', 'challenges.cloudflare.com'],
       imgSrc: ["'self'", "localhost:4000", "localhost:5101", "blog.damienslab.com", 'tile.openstreetmap.org', '*.tile.openstreetmap.org'],
 
