@@ -1,3 +1,17 @@
+const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: process.env.SMTP_PORT,
+  secure: true, // true for SSL (465), false for TLS (587)
+  auth: {
+    user: process.env.EMAIL_USER, // Environment variable
+    pass: process.env.EMAIL_PASS, // Environment variable
+  },
+});
+
+const axios = require('axios'); // Axios for HTTP requests (to verify CAPTCHA)
+
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -68,7 +82,7 @@ app.use(
 const RateLimit = require("express-rate-limit");
 const limiter = RateLimit({
   windowMs: 1 * 60 * 1000, // 5 minute
-  max: 500,
+  max: 100,
 });
 // Apply rate limiter to all requests
 app.use(limiter);
@@ -100,6 +114,55 @@ app.use((req, res, next) => {
 app.use('/api/webhook', apiRouter);
 app.use('/', indexRouter);
 
+
+app.post('/send-inquiry', async (req, res) => {
+  const { name, company, phone, address, email, comment, 'cf-turnstile-response': turnstileToken } = req.body;
+
+  if (!turnstileToken) {
+    return res.status(400).json({ error: 'CAPTCHA verification failed' });
+  }
+
+  try {
+    const turnstileSecret = process.env.TURNSTILE_SECRET_KEY; // Using environment variable for security
+    const verifyUrl = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+
+    const captchaVerification = await axios.post(verifyUrl, null, {
+      params: {
+        secret: turnstileSecret,
+        response: turnstileToken,
+      },
+      timeout: 5000, // Add a timeout to avoid hanging
+    });
+
+    if (!captchaVerification.data.success) {
+      return res.status(400).json({ error: 'CAPTCHA verification failed' });
+    }
+
+
+
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: 'sales@mbos.com.my',
+      subject: 'New Inquiry from Website',
+      text: `
+        Name: ${name}
+        Company: ${company}
+        Phone: ${phone}
+        Address: ${address}
+        Email: ${email}
+        Comment: ${comment}
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({ message: 'Inquiry sent successfully!' });
+  } catch (error) {
+    console.error('Error sending email:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
