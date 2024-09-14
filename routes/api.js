@@ -31,7 +31,7 @@ router.get('/blog_updates', async function (req, res, next) {
 
         const apiUrl0 = blogUrl + "/api/webhook?scope=get_contact"; // Adjust the API URL as needed
         const response0 = await axios.get(apiUrl0);
-       
+
         const apiUrl = blogUrl + "/api/webhook?scope=get_pages"; // Adjust the API URL as needed
         const response = await axios.get(apiUrl);
         const data = response.data;
@@ -43,11 +43,15 @@ router.get('/blog_updates', async function (req, res, next) {
             const htmlContent = blog.content;
 
             li_route.push(`<li>
-            <a href="`+blog.route_name+`" class="navi">`+ blog.name + `</a>
+            <a href="`+ blog.route_name + `" class="navi">` + blog.name + `</a>
         </li>`)
 
             // Write the HTML content to a file
-            nroute.push(`{ html: "` + blog.route_name.replace("/", "") + `.html", title: "` + blog.name + `", route: "` + blog.route_name + `" },`)
+            if (blog.show_nav) {
+                nroute.push(`{ html: "` + blog.route_name.replace("/", "") + `.html", title: "` + blog.name + `", route: "` + blog.route_name + `" },`)
+
+            }
+
             fs.writeFileSync(`./views/pages${blog.route_name}.ejs`, htmlContent, 'utf8');
         });
 
@@ -81,8 +85,8 @@ router.get('/blog_updates', async function (req, res, next) {
                                 <div class="account">
                                     <ul>
                                         <li>
-                                            <a href="` +  (response0.data.plain_content2 || 'https://wa.me/60122664254?text=Hello%20there!') + `">
-                                                <img src="/img/wa150.png" style="width: 24px;">`+ response0.data.plain_content1 +`
+                                            <a href="` + (response0.data.plain_content2 || 'https://wa.me/60122664254?text=Hello%20there!') + `">
+                                                <img src="/img/wa150.png" style="width: 24px;">`+ response0.data.plain_content1 + `
                                             </a>
                                         </li>
                                     </ul>
@@ -94,7 +98,7 @@ router.get('/blog_updates', async function (req, res, next) {
                                         <li>
                                             <a class="navi" href="/home">Home</a>
                                         </li>
-                                        `+ li_route.join("") +`
+                                        `+ li_route.join("") + `
                                     </ul>
                                 </nav>
                                 <div class="hamburger-box button mobile-toggle">
@@ -126,7 +130,7 @@ router.get('/blog_updates', async function (req, res, next) {
                 <li>
                     <a class="navi" href="/home">Home</a>
                 </li>
-                `+ li_route.join("") +`
+                `+ li_route.join("") + `
             </ul>
         </div>
         <div class="menu-overlay"></div>
