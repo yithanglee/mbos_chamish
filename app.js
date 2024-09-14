@@ -67,7 +67,7 @@ var app = express();
 app.use(
   helmet.contentSecurityPolicy({
     directives: {
-      "form-action": ['payment.ipay88.com.my'],
+      "form-action": ['mbos.damienslab.com/send-inquiry'],
       defaultSrc: ["'self'", "www.google.com"],
       "script-src-attr": ["'self'", "'unsafe-inline'"],
       "frame-src": ["'self'", "www.google.com", "challenges.cloudflare.com"],
