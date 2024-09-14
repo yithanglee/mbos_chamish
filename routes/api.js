@@ -42,15 +42,21 @@ router.get('/blog_updates', async function (req, res, next) {
         data.forEach((blog, index) => {
             const htmlContent = blog.content;
 
-            li_route.push(`<li>
-            <a href="`+ blog.route_name + `" class="navi">` + blog.name + `</a>
-        </li>`)
+
+            if (blog.show_nav) {
+                li_route.push(`<li>
+                <a href="`+ blog.route_name + `" class="navi">` + blog.name + `</a>
+            </li>`)
+            } else {
+                li_route.push(`<li class="d-none">
+                <a href="`+ blog.route_name + `" class="navi">` + blog.name + `</a>
+            </li>`)
+            }
+
 
             // Write the HTML content to a file
-            if (blog.show_nav) {
-                nroute.push(`{ html: "` + blog.route_name.replace("/", "") + `.html", title: "` + blog.name + `", route: "` + blog.route_name + `" },`)
-
-            }
+          
+            nroute.push(`{ html: "` + blog.route_name.replace("/", "") + `.html", title: "` + blog.name + `", route: "` + blog.route_name + `" },`)
 
             fs.writeFileSync(`./views/pages${blog.route_name}.ejs`, htmlContent, 'utf8');
         });
