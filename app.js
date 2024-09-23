@@ -3,7 +3,7 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER, // Environment variable
+    user: process.env.EMAIL_USER, // Environment variable 
     pass: process.env.EMAIL_PASS, // Environment variable
   },
 });
@@ -65,7 +65,7 @@ var app = express();
 app.use(
   helmet.contentSecurityPolicy({
     directives: {
-      "form-action": ['mbos.com.my/send-inquiry', 'mbos.damienslab.com/send-inquiry'],
+      "form-action": ['localhost:5101/send-inquiry', 'mbos.com.my/send-inquiry', 'mbos.damienslab.com/send-inquiry'],
       defaultSrc: ["'self'", "www.google.com"],
       "script-src-attr": ["'self'", "'unsafe-inline'"],
       "frame-src": ["'self'", "www.google.com", "challenges.cloudflare.com"],
@@ -121,20 +121,20 @@ app.post('/send-inquiry', async (req, res) => {
   }
 
   try {
-    // const turnstileSecret = process.env.TURNSTILE_SECRET_KEY; // Using environment variable for security
-    // const verifyUrl = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+    const turnstileSecret = process.env.TURNSTILE_SECRET_KEY; // Using environment variable for security
+    const verifyUrl = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 
-    // const captchaVerification = await axios.post(verifyUrl, null, {
-    //   params: {
-    //     secret: turnstileSecret,
-    //     response: turnstileToken,
-    //   },
-    //   timeout: 5000, // Add a timeout to avoid hanging
-    // });
+    const captchaVerification = await axios.post(verifyUrl, null, {
+      params: {
+        secret: turnstileSecret,
+        response: turnstileToken,
+      },
+      timeout: 5000, // Add a timeout to avoid hanging
+    });
 
-    // if (!captchaVerification.data.success) {
-    //   return res.status(400).json({ error: 'CAPTCHA verification failed' });
-    // }
+    if (!captchaVerification.data.success) {
+      return res.status(400).json({ error: 'CAPTCHA verification failed' });
+    }
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -152,7 +152,8 @@ app.post('/send-inquiry', async (req, res) => {
 
     await transporter.sendMail(mailOptions);
 
-    res.status(200).json({ message: 'Inquiry sent successfully!' });
+    // res.status(200).json({ message: 'Inquiry sent successfully!' });
+    res.redirect('/home');
   } catch (error) {
     console.error('Error sending email:', error);
     res.status(500).json({ error: 'Internal server error' });
