@@ -65,7 +65,7 @@ var app = express();
 app.use(
   helmet.contentSecurityPolicy({
     directives: {
-      "form-action": ['mbos.damienslab.com/send-inquiry'],
+      "form-action": ['mbos.com.my/send-inquiry', 'mbos.damienslab.com/send-inquiry'],
       defaultSrc: ["'self'", "www.google.com"],
       "script-src-attr": ["'self'", "'unsafe-inline'"],
       "frame-src": ["'self'", "www.google.com", "challenges.cloudflare.com"],
