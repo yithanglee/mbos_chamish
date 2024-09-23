@@ -1,9 +1,7 @@
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: process.env.SMTP_PORT,
-  secure: true, // true for SSL (465), false for TLS (587)
+  service: 'gmail',
   auth: {
     user: process.env.EMAIL_USER, // Environment variable
     pass: process.env.EMAIL_PASS, // Environment variable
@@ -123,23 +121,20 @@ app.post('/send-inquiry', async (req, res) => {
   }
 
   try {
-    const turnstileSecret = process.env.TURNSTILE_SECRET_KEY; // Using environment variable for security
-    const verifyUrl = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+    // const turnstileSecret = process.env.TURNSTILE_SECRET_KEY; // Using environment variable for security
+    // const verifyUrl = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 
-    const captchaVerification = await axios.post(verifyUrl, null, {
-      params: {
-        secret: turnstileSecret,
-        response: turnstileToken,
-      },
-      timeout: 5000, // Add a timeout to avoid hanging
-    });
+    // const captchaVerification = await axios.post(verifyUrl, null, {
+    //   params: {
+    //     secret: turnstileSecret,
+    //     response: turnstileToken,
+    //   },
+    //   timeout: 5000, // Add a timeout to avoid hanging
+    // });
 
-    if (!captchaVerification.data.success) {
-      return res.status(400).json({ error: 'CAPTCHA verification failed' });
-    }
-
-
-
+    // if (!captchaVerification.data.success) {
+    //   return res.status(400).json({ error: 'CAPTCHA verification failed' });
+    // }
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
