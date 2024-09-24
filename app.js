@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
-
+const { SitemapStream, streamToPromise } = require('sitemap');
+const { Readable } = require('stream');
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -94,6 +95,37 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+
+
+
+// Example list of URLs for your sitemap (you can make this dynamic based on your app)
+const links = [
+  { url: '/', changefreq: 'daily', priority: 1.0 },
+  { url: '/about_us', changefreq: 'monthly', priority: 0.7 },
+  { url: '/contact', changefreq: 'monthly', priority: 0.7 },
+  { url: '/certifications', changefreq: 'monthly', priority: 0.7 },
+  { url: '/products', changefreq: 'weekly', priority: 0.8 },
+];
+
+// Route to generate the sitemap.xml
+app.get('/sitemap.xml', async (req, res) => {
+  try {
+    // Create a stream to write to
+    const stream = new SitemapStream({ hostname: 'https://www.mbos.com.my' });
+
+    // Return a promise that resolves with your XML content
+    const xmlData = await streamToPromise(Readable.from(links).pipe(stream)).then((data) => data.toString());
+
+    // Set headers for proper XML content type
+    res.header('Content-Type', 'application/xml');
+    res.send(xmlData);
+  } catch (err) {
+    console.error('Error generating sitemap:', err);
+    res.status(500).end();
+  }
+});
+
 // Middleware to extract subdomain
 app.use((req, res, next) => {
   const host = req.headers.host;
@@ -173,6 +205,7 @@ app.post('/send-inquiry', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
