@@ -117,11 +117,12 @@ app.post('/send-inquiry', async (req, res) => {
   const { name, company, phone, address, email, comment, 'cf-turnstile-response': turnstileToken } = req.body;
 
   if (!turnstileToken) {
-    return res.status(400).json({ error: 'CAPTCHA verification failed' });
+    return res.status(400).json({ error: 'CAPTCHA token verification failed' });
   }
 
   try {
     const turnstileSecret = process.env.TURNSTILE_SECRET_KEY; // Using environment variable for security
+    console.log(turnstileSecret)
     const verifyUrl = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 
     const captchaVerification = await axios.post(verifyUrl, null, {
@@ -131,6 +132,8 @@ app.post('/send-inquiry', async (req, res) => {
       },
       timeout: 5000, // Add a timeout to avoid hanging
     });
+
+    console.log(captchaVerification)
 
     if (!captchaVerification.data.success) {
       return res.status(400).json({ error: 'CAPTCHA verification failed' });
