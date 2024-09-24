@@ -127,22 +127,25 @@ app.post('/send-inquiry', async (req, res) => {
     if (!turnstileSecret) {
       return res.status(400).json({ error: 'CAPTCHA Missing token' });
     }
-    // Use URLSearchParams to encode data as 'application/x-www-form-urlencoded'
-    const params = new URLSearchParams();
-    params.append('secret', turnstileSecret);
-    params.append('response', turnstileToken);
+
+
+    const ip = req.headers.get('CF-Connecting-IP');
 
     // Send the request with form-encoded data
-    const captchaVerification = await axios.post(verifyUrl, params, {
+    const result = await fetch(url, {
+      body: JSON.stringify({
+        secret: turnstileSecret,
+        response: turnstileToken,
+        remoteip: ip
+      }),
+      method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded', // Set the correct content type
-      },
-      timeout: 5000, // Add a timeout to avoid hanging
+        'Content-Type': 'application/json'
+      }
     });
 
-    console.log(captchaVerification)
-
-    if (!captchaVerification.data.success) {
+    const outcome = await result.json();
+    if (!outcome.success) {
       return res.status(400).json({ error: 'CAPTCHA verification failed' });
     }
 
