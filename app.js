@@ -145,6 +145,7 @@ app.post('/send-inquiry', async (req, res) => {
     });
 
     const outcome = await result.json();
+    console.log(outcome)
     if (!outcome.success) {
       return res.status(400).json({ error: 'CAPTCHA verification failed' });
     }
