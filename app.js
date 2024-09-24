@@ -124,7 +124,9 @@ app.post('/send-inquiry', async (req, res) => {
     const turnstileSecret = process.env.TURNSTILE_SECRET_KEY; // Using environment variable for security
     console.log(turnstileSecret)
     const verifyUrl = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
-
+    if (!turnstileSecret) {
+      return res.status(400).json({ error: 'CAPTCHA Missing token' });
+    }
     const captchaVerification = await axios.post(verifyUrl, null, {
       params: {
         secret: turnstileSecret,
