@@ -129,7 +129,7 @@ app.post('/send-inquiry', async (req, res) => {
     }
 
 
-    const ip = req.headers.get('CF-Connecting-IP');
+    const ip = req.headers['cf-connecting-ip'];
 
     // Send the request with form-encoded data
     const result = await fetch(url, {
