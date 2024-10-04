@@ -8,11 +8,66 @@
 </style>
 
 <!-- Start Slider Area -->
-<div class="slider_area slide_active">
+<div class="slider_area slide_active  d-lg-none">
   <% JSON.parse(data.banners).filter((v,i) => { return v.is_banner == false}).forEach(item=> { %>
 
   <!-- Start Single Slide -->
-  <div class="slide slide_fixed_height d-flex align-items-center poss_relative animation__style01" style="
+  <div class="slide slide_fixed_height d-flex align-items-center poss_relative animation__style01 " style="
+            background-image: url('<%= data.blogUrl %>/<%= item.mobile_img_url%>');
+                background-repeat: no-repeat;
+                height: 100%;
+                background-size: contain;
+                background-color: black;
+                background-position: center center;
+            ">
+    <div class="container">
+      <% if (item.content == null ) {%>
+      <div class="row align-items-center">
+        <div class="col-lg-12">
+          <div class="slide_text">
+            <h3>Unbelievable low prices</h3>
+            <h1>GLASSES FOR
+              <br> MEN & WOMEN
+            </h1>
+            <a href="#">Buy Now</a>
+          </div>
+
+          <div class="rotate_titlE">
+            <h2>GET UP TO
+              <span>65%</span> Off
+            </h2>
+          </div>
+        </div>
+      </div>
+      <% } else { %>
+      <div class="row align-items-center">
+        <div class="<%= item.class_list %>">
+          <%- item.content%>
+        </div>
+      </div>
+      <% } %>
+
+    </div>
+  </div>
+  <!-- End Single Slide -->
+
+
+
+  
+  <% }) %>
+
+
+
+</div>
+
+
+<!-- End Slider Area -->
+<!-- Start Slider Area -->
+<div class="slider_area slide_active d-none d-lg-block">
+  <% JSON.parse(data.banners).filter((v,i) => { return v.is_banner == false}).forEach(item=> { %>
+
+  <!-- Start Single Slide -->
+  <div class="slide slide_fixed_height d-flex align-items-center poss_relative animation__style01 " style="
             background-image: url('<%= data.blogUrl %>/<%= item.img_url%>');
                 background-repeat: no-repeat;
                 height: 100%;
@@ -49,6 +104,10 @@
     </div>
   </div>
   <!-- End Single Slide -->
+
+
+
+  
   <% }) %>
 
 
@@ -57,9 +116,7 @@
 
 
 <!-- End Slider Area -->
-<script>
 
-</script>
 <!-- Start Product Area -->
 <div class="product_area section-pt-xl section-pb-xl bg-white">
   <div class="container">
