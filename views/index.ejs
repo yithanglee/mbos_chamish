@@ -10,7 +10,7 @@
 
   <!-- Favicon -->
   <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon">
-  <link rel="apple-touch-icon" href="/img/icon.png">
+  <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
 
   <!-- Plugins -->
   <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -26,6 +26,7 @@
   <script src="/js/vendor/jquery.min.js"></script>
   <script src="/js/popper.min.js"></script>
   <script src="/js/bootstrap.min.js"></script>
+  <script  type="text/javascript" src="/js/bootstrap_notify.js"></script>
   <script type="text/javascript" src="/js/sha.js"></script>
   <script type="text/javascript" src="/js/phx_app.js"></script>
   <script src="/js/base.js"></script>
@@ -42,9 +43,19 @@
   <!-- Wrapper -->
   <div id="wrapper" class="wrapper">
     <%- content %>
-      <% if (useEjs) { %>
-        <%- include('pages/' + page, { data: data }) %>
-          <% }%>
+    <% try { %>
+      <%- include('pages/' + page, { data: data }) %>
+    <% } catch (err) { %>
+      <center style="margin: 20vh;" >Page not found.</center>
+      <script>
+        PhxApp.notify("Page not found, you will be redirected.")
+        setTimeout(() => {
+          navigateTo("/home")
+        }, 2000)
+      </script>
+
+
+    <% } %>
 
   </div>
   <div class="wrapper">
@@ -209,6 +220,23 @@
     <!-- End Footer Area -->
 
 
+  </div>
+  <div class="modal" id="myModal">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Modal title</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Modal body text goes here.</p>
+        </div>
+        <div class="modal-footer">
+        </div>
+      </div>
+    </div>
   </div>
   <!--// Wrapper -->
   <script src="/js/plugins.js"></script>

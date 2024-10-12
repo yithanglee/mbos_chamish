@@ -106,6 +106,8 @@ const links = [
   { url: '/contact', changefreq: 'monthly', priority: 0.7 },
   { url: '/certifications', changefreq: 'monthly', priority: 0.7 },
   { url: '/products', changefreq: 'weekly', priority: 0.8 },
+  { url: '/products_rx', changefreq: 'weekly', priority: 0.8 },
+  { url: '/products_safety_spectacles', changefreq: 'weekly', priority: 0.8 }
 ];
 
 // Route to generate the sitemap.xml
