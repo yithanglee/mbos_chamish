@@ -161,7 +161,9 @@ $(document).on("click", "a.navi", function (event) {
     $("a.ms-link").removeClass("active")
     $(this)[0].classList.contains("ms-link") ? $(this)[0].classList.add("active") : null;
     setTimeout(() => {
-        if ($(this).attr("href").includes("#")) { } else {
+        if ($(this).attr("href").includes("#")) { 
+            
+        } else {
             navigateTo($(this).attr("href"))
         }
     }, 200)
