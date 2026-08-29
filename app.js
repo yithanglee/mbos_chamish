@@ -25,39 +25,33 @@ const fs = require('fs');
 
 // Source directory; this should already exist
 const srcDir = path.join(__dirname, 'internal/html');
-console.log(srcDir)
 // Destination directory; this is where you want to create the symlink
 const destDir = path.join(__dirname, 'public/html/v2');
+const targetRel = path.relative(path.dirname(destDir), srcDir);
 
-
-// Function to create the symlink
-function createSymlink() {
-  fs.symlink(srcDir, destDir, 'dir', (err) => {
-    if (err) {
-      console.error('Error creating symlink:', err);
-    } else {
-      console.log('Symlink created successfully');
+try {
+  fs.mkdirSync(path.dirname(destDir), { recursive: true });
+  const stats = fs.lstatSync(destDir);
+  if (stats.isSymbolicLink()) {
+    const currentTarget = fs.readlinkSync(destDir);
+    if (currentTarget !== targetRel) {
+      fs.unlinkSync(destDir);
+      fs.symlinkSync(targetRel, destDir, 'dir');
+      console.log('Symlink updated successfully');
     }
-  });
-}
-
-// Check if the symlink already exists
-fs.access(destDir, fs.constants.F_OK, (err) => {
-  if (!err) {
-    // Symlink exists, delete it first
-    fs.unlink(destDir, (unlinkErr) => {
-      if (unlinkErr) {
-        console.error('Error deleting symlink:', unlinkErr);
-      } else {
-        console.log('Symlink deleted successfully');
-        createSymlink();
-      }
-    });
   } else {
-    // Symlink does not exist, create it directly
-    createSymlink();
+    fs.rmSync(destDir, { recursive: true, force: true });
+    fs.symlinkSync(targetRel, destDir, 'dir');
+    console.log('Symlink created successfully');
   }
-});
+} catch (err) {
+  if (err.code === 'ENOENT') {
+    fs.symlinkSync(targetRel, destDir, 'dir');
+    console.log('Symlink created successfully');
+  } else {
+    console.error('Error creating symlink:', err);
+  }
+}
 var app = express();
 
 
