@@ -3,11 +3,17 @@ var router = express.Router();
 const path = require('path');
 const fs = require('fs/promises');
 const he = require('he');
+const ejs = require('ejs');
 require('dotenv').config();
 
 const db = require('../lib/db');
 const storage = require('../lib/storage');
+const templates = require('../lib/templates');
 const assetsUrl = `${storage.s3Endpoint}/${storage.bucketName}`;
+
+function renderTemplate(name, vars) {
+  return templates.render(name, vars);
+}
 
 /* GET product page. */
 router.get('/single-product/*', async function (req, res, next) {
@@ -58,16 +64,26 @@ router.get('/single-product/*', async function (req, res, next) {
   const renderVars = {
     page: filename.replace('.html', ''),
     useEjs: decodedHtml.length === 0,
-    content: finalContent,
+    content: templates['blog_nav'] || finalContent,
     data: data,
     product: product,
   };
 
+  const pageKey = (key === 'home' || key === '') ? 'pages/landing' : 'pages/single-product';
+  const pageHtml = renderTemplate(pageKey, renderVars);
+
   if (Object.keys(req.query).includes('partial')) {
-    res.render('pages/' + (key || 'single-product'), renderVars);
-  } else {
-    res.render('index', renderVars);
+    if (pageHtml) return res.send(pageHtml);
+    return res.render('pages/' + (key || 'single-product'), renderVars);
   }
+
+  const fullHtml = renderTemplate('index', {
+    ...renderVars,
+    pageContent: pageHtml,
+  });
+
+  if (fullHtml) return res.send(fullHtml);
+  return res.render('index', renderVars);
 });
 
 /* GET general pages / home. */
@@ -122,16 +138,26 @@ router.get('/*', async function (req, res, next) {
   const renderVars = {
     page: filename.replace('.html', ''),
     useEjs: decodedHtml.length === 0,
-    content: finalContent,
+    content: templates['blog_nav'] || finalContent,
     data: data,
     product: product,
   };
 
+  const pageKey = (key === 'home' || key === '') ? 'pages/landing' : ('pages/' + key);
+  const pageHtml = renderTemplate(pageKey, renderVars);
+
   if (Object.keys(req.query).includes('partial')) {
-    res.render('pages/' + (key || 'landing'), renderVars);
-  } else {
-    res.render('index', renderVars);
+    if (pageHtml) return res.send(pageHtml);
+    return res.render('pages/' + (key || 'landing'), renderVars);
   }
+
+  const fullHtml = renderTemplate('index', {
+    ...renderVars,
+    pageContent: pageHtml,
+  });
+
+  if (fullHtml) return res.send(fullHtml);
+  return res.render('index', renderVars);
 });
 
 module.exports = router;

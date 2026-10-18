@@ -3,9 +3,10 @@
   "version": "0.0.2",
   "private": true,
   "scripts": {
-    "build": "node esbuild.config.js",
+    "build": "node scripts/build-templates.js && node esbuild.config.js && node scripts/build-worker.js",
     "start": "PORT=5101 node ./bin/www",
-    "dev": "npm run build && npm start"
+    "dev": "npm run build && npm start",
+    "deploy:cf": "npm run build && npx wrangler deploy --secrets-file .env"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1152.0",
@@ -23,11 +24,15 @@
     "he": "^1.2.0",
     "helmet": "^7.0.0",
     "http-errors": "~1.6.3",
+    "iconv-lite": "^0.7.3",
     "morgan": "~1.9.1",
     "nodemailer": "^6.9.15",
     "sitemap": "^8.0.0"
   },
   "devDependencies": {
     "esbuild": "^0.20.2"
+  },
+  "overrides": {
+    "iconv-lite": "^0.7.3"
   }
 }

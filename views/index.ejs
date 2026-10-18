@@ -43,18 +43,20 @@
   <!-- Wrapper -->
   <div id="wrapper" class="wrapper">
     <%- content %>
-    <% try { %>
-      <%- include('pages/' + page, { data: data }) %>
-    <% } catch (err) { %>
-      <center style="margin: 20vh;" >Page not found.</center>
-      <script>
-        PhxApp.notify("Page not found, you will be redirected.")
-        setTimeout(() => {
-          navigateTo("/home")
-        }, 2000)
-      </script>
-
-
+    <% if (typeof pageContent !== 'undefined' && pageContent) { %>
+      <%- pageContent %>
+    <% } else { %>
+      <% try { %>
+        <%- include('pages/' + page, { data: data }) %>
+      <% } catch (err) { %>
+        <center style="margin: 20vh;" >Page not found.</center>
+        <script>
+          PhxApp.notify("Page not found, you will be redirected.")
+          setTimeout(() => {
+            navigateTo("/home")
+          }, 2000)
+        </script>
+      <% } %>
     <% } %>
 
   </div>

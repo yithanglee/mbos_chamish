@@ -5,3 +5,5 @@
 .env
 .neon
 node_modules/
+.wrangler/
+dist/

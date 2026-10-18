@@ -1,13 +1,15 @@
-const nodemailer = require('nodemailer');
 const { SitemapStream, streamToPromise } = require('sitemap');
 const { Readable } = require('stream');
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER, // Environment variable 
-    pass: process.env.EMAIL_PASS, // Environment variable
-  },
-});
+function getTransporter() {
+  const nodemailer = require('nodemailer');
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+}
 
 const axios = require('axios'); // Axios for HTTP requests (to verify CAPTCHA)
 
@@ -29,27 +31,31 @@ const srcDir = path.join(__dirname, 'internal/html');
 const destDir = path.join(__dirname, 'public/html/v2');
 const targetRel = path.relative(path.dirname(destDir), srcDir);
 
-try {
-  fs.mkdirSync(path.dirname(destDir), { recursive: true });
-  const stats = fs.lstatSync(destDir);
-  if (stats.isSymbolicLink()) {
-    const currentTarget = fs.readlinkSync(destDir);
-    if (currentTarget !== targetRel) {
-      fs.unlinkSync(destDir);
+const isWorker = typeof WebSocketPair !== 'undefined' || process.env.CF_PAGES || process.env.WORKER;
+
+if (!isWorker) {
+  try {
+    fs.mkdirSync(path.dirname(destDir), { recursive: true });
+    const stats = fs.lstatSync(destDir);
+    if (stats.isSymbolicLink()) {
+      const currentTarget = fs.readlinkSync(destDir);
+      if (currentTarget !== targetRel) {
+        fs.unlinkSync(destDir);
+        fs.symlinkSync(targetRel, destDir, 'dir');
+        console.log('Symlink updated successfully');
+      }
+    } else {
+      fs.rmSync(destDir, { recursive: true, force: true });
       fs.symlinkSync(targetRel, destDir, 'dir');
-      console.log('Symlink updated successfully');
+      console.log('Symlink created successfully');
     }
-  } else {
-    fs.rmSync(destDir, { recursive: true, force: true });
-    fs.symlinkSync(targetRel, destDir, 'dir');
-    console.log('Symlink created successfully');
-  }
-} catch (err) {
-  if (err.code === 'ENOENT') {
-    fs.symlinkSync(targetRel, destDir, 'dir');
-    console.log('Symlink created successfully');
-  } else {
-    console.error('Error creating symlink:', err);
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      fs.symlinkSync(targetRel, destDir, 'dir');
+      console.log('Symlink created successfully');
+    } else {
+      console.error('Error creating symlink:', err);
+    }
   }
 }
 var app = express();
@@ -72,20 +78,24 @@ app.use(
   }),
 );
 
-// Set up rate limiter: maximum of twenty requests per minute
-const RateLimit = require("express-rate-limit");
-const limiter = RateLimit({
-  windowMs: 1 * 60 * 5000, // 5 minute
-  max: 500,
-});
-// Apply rate limiter to all requests
-app.use(limiter);
+if (!isWorker) {
+  // Set up rate limiter: maximum of twenty requests per minute
+  const RateLimit = require("express-rate-limit");
+  const limiter = RateLimit({
+    windowMs: 1 * 60 * 5000, // 5 minute
+    max: 500,
+  });
+  // Apply rate limiter to all requests
+  app.use(limiter);
+}
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-app.use(logger('dev'));
+if (!isWorker) {
+  app.use(logger('dev'));
+}
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -198,7 +208,7 @@ app.post('/send-inquiry', async (req, res) => {
       `,
     };
 
-    await transporter.sendMail(mailOptions);
+    await getTransporter().sendMail(mailOptions);
 
     // res.status(200).json({ message: 'Inquiry sent successfully!' });
     res.redirect('/home');
