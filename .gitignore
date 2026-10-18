@@ -3,3 +3,5 @@
 /views/pages/*
 /public/*
 .env
+.neon
+node_modules/

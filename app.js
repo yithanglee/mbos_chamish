@@ -55,6 +55,8 @@ try {
 var app = express();
 
 
+const storage = require('./lib/storage');
+
 // Add helmet to the middleware chain.
 // Set CSP headers to allow our Bootstrap and Jquery to be served
 app.use(
@@ -65,8 +67,7 @@ app.use(
       "script-src-attr": ["'self'", "'unsafe-inline'"],
       "frame-src": ["'self'", "www.google.com", "challenges.cloudflare.com"],
       scriptSrc: ["'self'", "'unsafe-eval'", "'unsafe-inline'", 'openstreetmap.org', 'static.cloudflareinsights.com', 'challenges.cloudflare.com'],
-      imgSrc: ["'self'", "localhost:4000", "localhost:5101", "blog.damienslab.com", 'tile.openstreetmap.org', '*.tile.openstreetmap.org'],
-
+      imgSrc: ["'self'", "data:", "*.neon.tech", "*.aws.neon.tech", "localhost:4000", "localhost:5101", "blog.damienslab.com", 'tile.openstreetmap.org', '*.tile.openstreetmap.org'],
     },
   }),
 );
@@ -137,6 +138,11 @@ app.use((req, res, next) => {
 
   next();
 });
+app.get('/images/uploads/:filename', (req, res) => {
+  const target = `${storage.s3Endpoint}/${storage.bucketName}/images/uploads/${encodeURIComponent(req.params.filename)}`;
+  res.redirect(301, target);
+});
+
 app.use('/api/webhook', apiRouter);
 app.use('/', indexRouter);
 
