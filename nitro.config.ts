@@ -6,7 +6,7 @@ const __dirname = dirname(__filename);
 
 export default defineNitroConfig({
   srcDir: 'server',
-  preset: process.env.NITRO_PRESET || 'cloudflare-pages',
+  preset: process.env.NITRO_PRESET || 'cloudflare-module',
   compatibilityDate: '2026-08-04',
   ignore: ['legacy_express_routes/**', 'app.js', 'worker.js', 'bin/**'],
   publicAssets: [

@@ -10,7 +10,7 @@
     "dev": "node scripts/build-templates.js && nitro dev",
     "dev:legacy": "npm run build:legacy && npm start",
     "deploy:pages": "npm run build && npx wrangler pages deploy dist --project-name mbos-chamish",
-    "deploy:cf": "npm run build:legacy && npx wrangler deploy --secrets-file .env"
+    "deploy:cf": "npm run build && echo \"yes\" | npx wrangler deploy --secrets-file .env"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1152.0",
