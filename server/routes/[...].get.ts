@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
 
   setResponseHeader(event, 'content-type', 'text/html; charset=utf-8');
 
-  const assetsUrl = `${getS3Endpoint()}/${bucketName}`;
+  const assetsUrl = getPublicStorageUrl('');
   const query = getQuery(event);
 
   // 1. Single Product route

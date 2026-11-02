@@ -1,5 +1,5 @@
 import { defineEventHandler, readMultipartFormData, readBody, getHeader, createError } from 'h3';
-import { uploadImageToNeon } from '../../../utils/storage';
+import { uploadImage } from '../../../utils/storage';
 import { requireAuth } from '../../../utils/auth';
 
 export default defineEventHandler(async (event) => {
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
     const filename = fileField.filename || `upload_${Date.now()}.jpg`;
     const mime = fileField.type || 'image/jpeg';
 
-    const result = await uploadImageToNeon(filename, fileField.data, mime);
+    const result = await uploadImage(filename, fileField.data, mime, event);
     return {
       success: true,
       url: result.url,
@@ -59,7 +59,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const result = await uploadImageToNeon(filename, buffer, mime);
+  const result = await uploadImage(filename, buffer, mime, event);
   return {
     success: true,
     url: result.url,
