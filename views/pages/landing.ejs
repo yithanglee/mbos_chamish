@@ -332,6 +332,16 @@
   </div>
 </div>
 <!-- End Product Area -->
+
+<!-- Dynamic 3D Interactive Story Section (Manageable by AI Agents / ChatGPT via /api/v1/sections/9) -->
+<% const storySection = data.sections.find(s => s.name === '3D Story Section'); %>
+<% if (storySection && (storySection.content1 || storySection.content2)) { %>
+  <section id="story-3d-experience" class="<%- storySection.class_list || '' %>">
+    <%- storySection.content1 || '' %>
+    <%- storySection.content2 || '' %>
+  </section>
+<% } %>
+
 <% if (data.sections.filter((s,i)=> {return s.name == 'Center Banner'}).length == 0) { %>
 <!-- Start How To Work Area -->
 <div class="work_area bg-dark d-none">

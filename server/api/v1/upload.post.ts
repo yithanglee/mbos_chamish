@@ -41,7 +41,27 @@ export default defineEventHandler(async (event) => {
   let filename = body.filename || `agent_upload_${Date.now()}.jpg`;
   let mime = body.contentType || 'image/jpeg';
 
-  if (body.data && typeof body.data === 'string') {
+  if (body.sourceUrl || body.url) {
+    const fetchUrl = body.sourceUrl || body.url;
+    try {
+      const resp = await fetch(fetchUrl);
+      if (!resp.ok) {
+        throw createError({ statusCode: 400, statusMessage: `Failed to fetch remote asset: ${resp.statusText}` });
+      }
+      const arrayBuffer = await resp.arrayBuffer();
+      buffer = Buffer.from(arrayBuffer);
+      if (!body.contentType && resp.headers.get('content-type')) {
+        mime = resp.headers.get('content-type')!.split(';')[0];
+      }
+      if (!body.filename) {
+        const urlPath = new URL(fetchUrl).pathname;
+        const base = urlPath.split('/').pop() || `remote_${Date.now()}.jpg`;
+        filename = base;
+      }
+    } catch (err: any) {
+      throw createError({ statusCode: 400, statusMessage: `Error downloading from URL: ${err.message}` });
+    }
+  } else if (body.data && typeof body.data === 'string') {
     // Check if data URL
     const match = body.data.match(/^data:([^;]+);base64,(.+)$/);
     if (match) {
@@ -55,7 +75,7 @@ export default defineEventHandler(async (event) => {
   } else {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Provide either multipart form-data or JSON with { filename, data: "<base64>" }',
+      statusMessage: 'Provide either multipart form-data, JSON with { sourceUrl, filename }, or { filename, data: "<base64>" }',
     });
   }
 
