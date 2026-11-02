@@ -67,6 +67,8 @@ router.get('/single-product/*', async function (req, res, next) {
     content: templates['blog_nav'] || finalContent,
     data: data,
     product: product,
+    buildNumber: res.locals.buildNumber,
+    buildTime: res.locals.buildTime,
   };
 
   const pageKey = (key === 'home' || key === '') ? 'pages/landing' : 'pages/single-product';
@@ -140,7 +142,8 @@ router.get('/*', async function (req, res, next) {
     useEjs: decodedHtml.length === 0,
     content: templates['blog_nav'] || finalContent,
     data: data,
-    product: product,
+    buildNumber: res.locals.buildNumber,
+    buildTime: res.locals.buildTime,
   };
 
   const pageKey = (key === 'home' || key === '') ? 'pages/landing' : ('pages/' + key);
