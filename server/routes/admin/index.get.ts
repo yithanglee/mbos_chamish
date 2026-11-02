@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   setResponseHeader(event, 'content-type', 'text/html; charset=utf-8');
 
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,31 +18,72 @@ export default defineEventHandler(async (event) => {
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <!-- TinyMCE CDNJS Build (Open-source, zero API key prompt) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js" referrerpolicy="origin"></script>
+
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('mbos_admin_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+  </script>
+
   <style>
     :root {
       --bg: #090d16;
+      --bg-header: rgba(13, 19, 33, 0.85);
       --card-bg: rgba(19, 26, 43, 0.7);
+      --modal-bg: #111827;
       --border: rgba(255, 255, 255, 0.08);
       --border-focus: #38bdf8;
       --accent: #0ea5e9;
       --accent-hover: #38bdf8;
       --neon: #00e699;
       --text: #f1f5f9;
+      --text-heading: #ffffff;
       --text-muted: #94a3b8;
+      --input-bg: rgba(15, 23, 42, 0.7);
+      --input-border: rgba(255, 255, 255, 0.12);
+      --table-header: rgba(15, 23, 42, 0.9);
+      --table-hover: rgba(255, 255, 255, 0.03);
+      --badge-bg: rgba(255, 255, 255, 0.06);
       --danger: #ef4444;
       --danger-hover: #f87171;
     }
+    [data-theme="light"] {
+      --bg: #f8fafc;
+      --bg-header: rgba(255, 255, 255, 0.95);
+      --card-bg: #ffffff;
+      --modal-bg: #ffffff;
+      --border: rgba(0, 0, 0, 0.1);
+      --border-focus: #0284c7;
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --neon: #059669;
+      --text: #1e293b;
+      --text-heading: #0f172a;
+      --text-muted: #64748b;
+      --input-bg: #f8fafc;
+      --input-border: #cbd5e1;
+      --table-header: #f8fafc;
+      --table-hover: #f1f5f9;
+      --badge-bg: #e2e8f0;
+      --danger: #dc2626;
+      --danger-hover: #b91c1c;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Inter', -apple-system, sans-serif;
-      background: #090d16;
+      background: var(--bg);
       color: var(--text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      transition: background-color 0.2s ease, color 0.2s ease;
     }
     header.top-nav {
-      background: rgba(13, 19, 33, 0.85);
+      background: var(--bg-header);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
       padding: 0.75rem 1.5rem;
@@ -60,11 +101,11 @@ export default defineEventHandler(async (event) => {
     }
     .brand-area img {
       height: 32px;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
     }
     .brand-area .badge-admin {
       background: rgba(14, 165, 233, 0.15);
-      color: #38bdf8;
+      color: #0284c7;
       font-size: 0.75rem;
       font-weight: 700;
       padding: 0.2rem 0.5rem;
@@ -72,6 +113,9 @@ export default defineEventHandler(async (event) => {
       border: 1px solid rgba(14, 165, 233, 0.3);
       text-transform: uppercase;
       letter-spacing: 0.05em;
+    }
+    [data-theme="dark"] .brand-area .badge-admin {
+      color: #38bdf8;
     }
     .nav-actions {
       display: flex;
@@ -112,13 +156,13 @@ export default defineEventHandler(async (event) => {
       transition: all 0.2s ease;
     }
     .btn-outline {
-      background: rgba(255, 255, 255, 0.04);
+      background: var(--card-bg);
       border-color: var(--border);
-      color: var(--text-muted);
+      color: var(--text);
     }
     .btn-outline:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: #fff;
+      background: var(--table-hover);
+      border-color: var(--border-focus);
     }
     .btn-primary {
       background: linear-gradient(135deg, #0ea5e9, #2563eb);
@@ -131,10 +175,10 @@ export default defineEventHandler(async (event) => {
     .btn-danger {
       background: rgba(239, 68, 68, 0.15);
       border-color: rgba(239, 68, 68, 0.3);
-      color: #fca5a5;
+      color: var(--danger);
     }
     .btn-danger:hover {
-      background: rgba(239, 68, 68, 0.25);
+      background: var(--danger);
       color: #fff;
     }
     .main-layout {
@@ -166,10 +210,10 @@ export default defineEventHandler(async (event) => {
       gap: 0.5rem;
     }
     .tab-btn:hover {
-      color: #fff;
+      color: var(--text-heading);
     }
     .tab-btn.active {
-      color: #38bdf8;
+      color: var(--accent);
     }
     .tab-btn.active::after {
       content: '';
@@ -178,8 +222,8 @@ export default defineEventHandler(async (event) => {
       left: 0;
       right: 0;
       height: 2px;
-      background: #38bdf8;
-      box-shadow: 0 0 12px #38bdf8;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent);
     }
     .tab-content {
       display: none;
@@ -198,7 +242,7 @@ export default defineEventHandler(async (event) => {
       border: 1px solid var(--border);
       border-radius: 0.75rem;
       padding: 1.25rem;
-      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     }
     .stat-title {
       font-size: 0.8rem;
@@ -210,7 +254,7 @@ export default defineEventHandler(async (event) => {
     .stat-value {
       font-size: 1.75rem;
       font-weight: 800;
-      color: #fff;
+      color: var(--text-heading);
     }
     .toolbar {
       display: flex;
@@ -229,12 +273,13 @@ export default defineEventHandler(async (event) => {
     }
     .input-field, .select-field {
       padding: 0.55rem 0.85rem;
-      background: rgba(15, 23, 42, 0.7);
-      border: 1px solid var(--border);
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
       border-radius: 0.5rem;
-      color: #fff;
+      color: var(--text);
       font-size: 0.85rem;
       outline: none;
+      transition: border-color 0.2s ease;
     }
     .input-field:focus, .select-field:focus {
       border-color: var(--border-focus);
@@ -248,7 +293,7 @@ export default defineEventHandler(async (event) => {
       border: 1px solid var(--border);
       border-radius: 0.75rem;
       overflow: hidden;
-      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     }
     table {
       width: 100%;
@@ -257,7 +302,7 @@ export default defineEventHandler(async (event) => {
       font-size: 0.875rem;
     }
     thead th {
-      background: rgba(15, 23, 42, 0.9);
+      background: var(--table-header);
       padding: 0.85rem 1rem;
       color: var(--text-muted);
       font-weight: 600;
@@ -271,7 +316,7 @@ export default defineEventHandler(async (event) => {
       transition: background 0.15s ease;
     }
     tbody tr:hover {
-      background: rgba(255, 255, 255, 0.02);
+      background: var(--table-hover);
     }
     tbody td {
       padding: 0.85rem 1rem;
@@ -280,9 +325,9 @@ export default defineEventHandler(async (event) => {
     .product-thumb {
       width: 48px;
       height: 48px;
-      object-fit: cover;
+      object-fit: contain;
       border-radius: 0.4rem;
-      background: rgba(0,0,0,0.3);
+      background: rgba(0,0,0,0.06);
       border: 1px solid var(--border);
     }
     .badge-pill {
@@ -291,9 +336,10 @@ export default defineEventHandler(async (event) => {
       border-radius: 0.35rem;
       font-size: 0.75rem;
       font-weight: 600;
-      background: rgba(255, 255, 255, 0.06);
-      color: #cbd5e1;
+      background: var(--badge-bg);
+      color: var(--text);
     }
+
     /* Modal */
     .modal-backdrop {
       display: none;
@@ -310,15 +356,16 @@ export default defineEventHandler(async (event) => {
       display: flex;
     }
     .modal-panel {
-      background: #111827;
+      background: var(--modal-bg);
+      color: var(--text);
       border: 1px solid var(--border);
       border-radius: 1rem;
       width: 100%;
-      max-width: 650px;
-      max-height: 90vh;
+      max-width: 880px;
+      max-height: 92vh;
       overflow-y: auto;
       padding: 2rem;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
     .modal-header {
       display: flex;
@@ -329,6 +376,7 @@ export default defineEventHandler(async (event) => {
     .modal-title {
       font-size: 1.25rem;
       font-weight: 700;
+      color: var(--text-heading);
     }
     .modal-close {
       background: none;
@@ -350,85 +398,172 @@ export default defineEventHandler(async (event) => {
       display: block;
       font-size: 0.8rem;
       font-weight: 600;
-      color: #cbd5e1;
+      color: var(--text-muted);
       margin-bottom: 0.4rem;
     }
     textarea.input-field {
       width: 100%;
-      min-height: 90px;
+      min-height: 120px;
       resize: vertical;
     }
-    /* Image Upload Dropzone */
-    .upload-zone {
-      border: 2px dashed rgba(14, 165, 233, 0.4);
-      background: rgba(14, 165, 233, 0.04);
-      border-radius: 0.75rem;
-      padding: 1.5rem;
-      text-align: center;
-      cursor: pointer;
+
+    /* 6-Slot Gallery Grid */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.85rem;
+      margin-top: 0.5rem;
+    }
+    @media (max-width: 768px) {
+      .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 480px) {
+      .gallery-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .gallery-slot {
+      background: var(--input-bg);
+      border: 1px dashed var(--input-border);
+      border-radius: 0.6rem;
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 160px;
       transition: all 0.2s ease;
       position: relative;
     }
-    .upload-zone:hover {
-      border-color: #38bdf8;
-      background: rgba(14, 165, 233, 0.08);
+    .gallery-slot.has-image {
+      border-style: solid;
+      border-color: var(--border);
     }
-    .upload-preview {
+    .gallery-slot-header {
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 1rem;
-      margin-top: 0.75rem;
-      background: rgba(0,0,0,0.3);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+    .gallery-slot-thumb {
+      width: 100%;
+      height: 90px;
+      object-fit: contain;
+      background: rgba(0,0,0,0.06);
+      border-radius: 0.4rem;
+      margin-bottom: 0.5rem;
+    }
+    .gallery-slot-empty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      cursor: pointer;
       padding: 0.5rem;
-      border-radius: 0.5rem;
+      border-radius: 0.4rem;
     }
-    .upload-preview img {
-      width: 60px;
-      height: 60px;
-      object-fit: cover;
+    .gallery-slot-empty:hover {
+      color: var(--accent);
+      background: rgba(14, 165, 233, 0.05);
+    }
+    .gallery-slot-actions {
+      display: flex;
+      gap: 0.35rem;
+      justify-content: center;
+      margin-top: 0.3rem;
+    }
+    .gallery-slot-btn {
+      padding: 0.25rem 0.55rem;
+      font-size: 0.7rem;
+      font-weight: 600;
       border-radius: 0.35rem;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s;
     }
+    .gallery-slot-btn:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+    .gallery-slot-btn.btn-remove {
+      color: var(--danger);
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+    .gallery-slot-btn.btn-remove:hover {
+      background: var(--danger);
+      color: #fff;
+    }
+    .slot-progress {
+      display: none;
+      font-size: 0.75rem;
+      color: var(--accent);
+      font-weight: 600;
+      padding: 0.5rem;
+      text-align: center;
+    }
+
     /* AI Agent Card */
     .ai-hero-card {
-      background: linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(99, 102, 241, 0.1));
-      border: 1px solid rgba(14, 165, 233, 0.3);
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(99, 102, 241, 0.08));
+      border: 1px solid rgba(14, 165, 233, 0.25);
       border-radius: 1rem;
       padding: 2rem;
       margin-bottom: 2rem;
     }
     .code-block {
-      background: #030712;
+      background: var(--input-bg);
       border: 1px solid var(--border);
       border-radius: 0.5rem;
       padding: 1rem;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.85rem;
-      color: #38bdf8;
+      color: var(--accent);
       overflow-x: auto;
       margin-top: 0.5rem;
     }
     .copy-btn {
       float: right;
-      padding: 0.2rem 0.5rem;
-      background: rgba(255, 255, 255, 0.1);
-      border: none;
-      color: #fff;
+      padding: 0.2rem 0.6rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 0.35rem;
       font-size: 0.75rem;
-      border-radius: 0.25rem;
       cursor: pointer;
     }
-    .copy-btn:hover { background: rgba(255, 255, 255, 0.2); }
+    .copy-btn:hover {
+      background: var(--accent);
+      color: #fff;
+    }
   </style>
 </head>
 <body>
   <header class="top-nav">
     <div class="brand-area">
-      <img src="/img/logo/logo1.png" alt="MBOS" onerror="this.style.display='none'">
-      <span class="badge-admin">Management</span>
-      <span class="badge-neon-status">Neon Postgres + Cloudflare R2</span>
+      <img src="/img/logo/logo1.png" alt="MBOS Logo" onerror="this.src='/img/product/placeholder.jpg'">
+      <div>
+        <strong style="font-weight: 800; letter-spacing: -0.02em; color: var(--text-heading);">MBOS OPTICS</strong>
+        <span class="badge-admin">Admin Portal</span>
+      </div>
+      <div class="badge-neon-status">Neon DB Connected</div>
     </div>
     <div class="nav-actions">
-      <a href="/home" target="_blank" class="btn btn-outline">&nearr; View Website</a>
+      <!-- Light / Dark Mode Toggle Button -->
+      <button type="button" id="themeToggleBtn" class="btn btn-outline" onclick="toggleTheme()" title="Toggle Light / Dark Mode" style="padding: 0.4rem 0.8rem;">
+        <span id="themeIcon">☀️</span> <span id="themeLabel" style="font-size: 0.8rem;">Light</span>
+      </button>
+      <a href="/home" target="_blank" class="btn btn-outline">&nearr; View Storefront</a>
       <button class="btn btn-outline" onclick="logout()">Sign Out</button>
     </div>
   </header>
@@ -485,11 +620,12 @@ export default defineEventHandler(async (event) => {
               <th>Category</th>
               <th>Brand</th>
               <th>Stock</th>
+              <th>Gallery</th>
               <th style="text-align: right;">Actions</th>
             </tr>
           </thead>
           <tbody id="productsTableBody">
-            <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 3rem;">Loading products from Neon Postgres...</td></tr>
+            <tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 3rem;">Loading products from Neon Postgres...</td></tr>
           </tbody>
         </table>
       </div>
@@ -498,7 +634,7 @@ export default defineEventHandler(async (event) => {
     <!-- BANNERS TAB -->
     <div id="tab-banners" class="tab-content">
       <div class="toolbar">
-        <h2>Homepage Carousel & Banners</h2>
+        <h2 style="color: var(--text-heading);">Homepage Carousel & Banners</h2>
         <button class="btn btn-primary" onclick="openBannerModal()">+ Add New Banner</button>
       </div>
       <div class="products-table-container">
@@ -522,7 +658,7 @@ export default defineEventHandler(async (event) => {
     <!-- SECTIONS TAB -->
     <div id="tab-sections" class="tab-content">
       <div class="toolbar">
-        <h2>Website Sections & Contact Info</h2>
+        <h2 style="color: var(--text-heading);">Storefront Content & Contact Sections</h2>
       </div>
       <div class="products-table-container">
         <table>
@@ -530,53 +666,66 @@ export default defineEventHandler(async (event) => {
             <tr>
               <th style="width: 60px;">ID</th>
               <th>Section Name</th>
-              <th>Phone / Text 1</th>
-              <th>WhatsApp / Text 2</th>
-              <th style="text-align: right;">Action</th>
+              <th>Plain Content 1 (Phone / Address)</th>
+              <th>Plain Content 2 (WhatsApp / Hours)</th>
+              <th style="text-align: right;">Actions</th>
             </tr>
           </thead>
           <tbody id="sectionsTableBody">
-            <tr><td colspan="5" style="text-align: center; padding: 2rem;">Loading sections...</td></tr>
+            <tr><td colspan="5" style="text-align: center; padding: 2rem;">Loading website content sections...</td></tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- AI AGENTS TAB -->
+    <!-- AI AGENT INTEGRATION TAB -->
     <div id="tab-ai" class="tab-content">
       <div class="ai-hero-card">
-        <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: #fff;">&#129302; AI Agent Automation Hub</h2>
-        <p style="color: #cbd5e1; line-height: 1.6; max-width: 800px;">
-          Other AI agents (OpenAI, Claude, Antigravity, Cursor, LangChain) can manage your products, upload images to Neon S3, update banners, and edit website text via the dedicated API.
+        <h2 style="color: var(--text-heading); margin-bottom: 0.5rem;">🤖 AI Agent Automation & MCP Tools</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">
+          MBOS Chamish is equipped with native programmatic endpoints and OpenAPI tool specifications so autonomous AI agents (Claude, GPT, Open-source LLMs) can inspect inventory, add new safety spectacles, adjust balances, and update marketing banners.
         </p>
 
-        <div style="margin-top: 1.5rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
-          <a href="/api/ai/openapi" target="_blank" class="btn btn-primary">&#128196; OpenAPI 3.1 Spec</a>
-          <a href="/api/ai/tools" target="_blank" class="btn btn-outline">&#129520; Function Calling Spec</a>
-          <a href="/api/ai/instructions" target="_blank" class="btn btn-outline">&#128214; Agent Instructions (Markdown)</a>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+          <div style="background: var(--card-bg); border: 1px solid var(--border); padding: 1.25rem; border-radius: 0.75rem;">
+            <div style="font-weight: 700; color: var(--text-heading);">&#128220; OpenAPI Specification</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.35rem 0 0.75rem;">Auto-generated schema of all store manipulation tools.</p>
+            <a href="/api/ai/openapi" target="_blank" class="btn btn-outline" style="font-size: 0.75rem;">View /api/ai/openapi</a>
+          </div>
+
+          <div style="background: var(--card-bg); border: 1px solid var(--border); padding: 1.25rem; border-radius: 0.75rem;">
+            <div style="font-weight: 700; color: var(--text-heading);">&#129520; Function Calling Tools</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.35rem 0 0.75rem;">JSON definitions ready for Anthropic Tool Use or OpenAI functions.</p>
+            <a href="/api/ai/tools" target="_blank" class="btn btn-outline" style="font-size: 0.75rem;">View /api/ai/tools</a>
+          </div>
+
+          <div style="background: var(--card-bg); border: 1px solid var(--border); padding: 1.25rem; border-radius: 0.75rem;">
+            <div style="font-weight: 700; color: var(--text-heading);">&#128214; Agent System Instructions</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.35rem 0 0.75rem;">Context prompt describing MBOS safety specs & catalog structure.</p>
+            <a href="/api/ai/instructions" target="_blank" class="btn btn-outline" style="font-size: 0.75rem;">View /api/ai/instructions</a>
+          </div>
         </div>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-        <div class="stat-card">
-          <h3 style="margin-bottom: 0.5rem;">Agent Authentication</h3>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">Include this header in requests made by automated agents:</p>
-          <div class="code-block">
-            <button class="copy-btn" onclick="copyText('X-API-Key: mbos_ai_agent_secret_key')">Copy</button>
-            X-API-Key: mbos_ai_agent_secret_key
-          </div>
+      <div class="stat-card" style="margin-bottom: 1.5rem;">
+        <h3 style="color: var(--text-heading); margin-bottom: 0.75rem;">Agent Authentication Key</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+          Pass this secret header in all autonomous agent HTTP requests:
+        </p>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyText('X-API-Key: mbos_ai_agent_secret_key')">Copy</button>
+          X-API-Key: mbos_ai_agent_secret_key
         </div>
+      </div>
 
-        <div class="stat-card">
-          <h3 style="margin-bottom: 0.5rem;">Example: Create Product via cURL</h3>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">Quick command for AI scripts:</p>
-          <div class="code-block" style="font-size: 0.75rem;">
-            <button class="copy-btn" onclick="copyText(curlExample)">Copy</button>
-            curl -X POST https://your-site/api/v1/products \\<br>
-            &nbsp;&nbsp;-H "X-API-Key: mbos_ai_agent_secret_key" \\<br>
-            &nbsp;&nbsp;-H "Content-Type: application/json" \\<br>
-            &nbsp;&nbsp;-d '{"name": "Safety Glasses Pro", "balance": 50}'
-          </div>
+      <div class="stat-card">
+        <h3 style="color: var(--text-heading); margin-bottom: 0.75rem;">Example: Create Product via cURL / AI Code Execution</h3>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyText(curlExample)">Copy</button>
+          curl -X POST https://mbos-chamish.yithanglee.workers.dev/api/v1/products \\<br>
+          &nbsp;&nbsp;-H "X-API-Key: mbos_ai_agent_secret_key" \\<br>
+          &nbsp;&nbsp;-H "Content-Type: application/json" \\<br>
+          &nbsp;&nbsp;-d '{"name": "Safety Glasses Pro", "balance": 50}'
         </div>
       </div>
     </div>
@@ -618,34 +767,124 @@ export default defineEventHandler(async (event) => {
           </div>
 
           <div>
-            <label class="field-label">Primary Image Key</label>
-            <input type="text" id="prodImgUrl" class="input-field" style="width: 100%;" placeholder="images/uploads/...">
-          </div>
-
-          <!-- Image Upload to Neon Object Storage -->
-          <div class="form-full">
-            <label class="field-label">Upload Product Image (Neon Object Storage)</label>
-            <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
-              <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileUpload(event)">
-              <div id="uploadPrompt">
-                &#128247; <strong>Click to upload image</strong> or drag and drop<br>
-                <span style="font-size: 0.75rem; color: var(--text-muted);">PNG, JPG, WEBP stored in Neon Storage assets bucket</span>
-              </div>
-              <div id="uploadProgress" style="display: none; color: #38bdf8;">Uploading to Neon Object Storage...</div>
-            </div>
-            <div id="previewContainer" class="upload-preview" style="display: none;">
-              <img id="previewImg" src="" alt="preview">
-              <div style="flex: 1; font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis;" id="previewUrl"></div>
-            </div>
-          </div>
-
-          <div class="form-full">
             <label class="field-label">Short Description</label>
             <input type="text" id="prodShortDesc" class="input-field" style="width: 100%;" placeholder="Brief feature summary">
           </div>
 
+          <!-- MULTI-IMAGE GALLERY (6 SLOTS) -->
           <div class="form-full">
-            <label class="field-label">Full Description (HTML / Details)</label>
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 0.25rem;">
+              <label class="field-label" style="margin-bottom: 0;">Product Images & Gallery (6 Slots - Neon Storage)</label>
+              <span style="font-size: 0.72rem; color: var(--text-muted);">Uploaded directly to Neon Storage <strong style="color: var(--accent);">assets</strong> bucket</span>
+            </div>
+
+            <!-- Hidden inputs for image keys -->
+            <input type="hidden" id="prodImgUrl1">
+            <input type="hidden" id="prodImgUrl2">
+            <input type="hidden" id="prodImgUrl3">
+            <input type="hidden" id="prodImgUrl4">
+            <input type="hidden" id="prodImgUrl5">
+            <input type="hidden" id="prodImgUrl6">
+
+            <!-- Hidden file inputs -->
+            <input type="file" id="fileSlot1" accept="image/*" style="display: none;" onchange="handleSlotUpload(event, 1)">
+            <input type="file" id="fileSlot2" accept="image/*" style="display: none;" onchange="handleSlotUpload(event, 2)">
+            <input type="file" id="fileSlot3" accept="image/*" style="display: none;" onchange="handleSlotUpload(event, 3)">
+            <input type="file" id="fileSlot4" accept="image/*" style="display: none;" onchange="handleSlotUpload(event, 4)">
+            <input type="file" id="fileSlot5" accept="image/*" style="display: none;" onchange="handleSlotUpload(event, 5)">
+            <input type="file" id="fileSlot6" accept="image/*" style="display: none;" onchange="handleSlotUpload(event, 6)">
+
+            <div class="gallery-grid">
+              <!-- Slot 1 (Primary / Cover) -->
+              <div class="gallery-slot" id="slotCard1">
+                <div class="gallery-slot-header">
+                  <span>Slot 1 (Cover *)</span>
+                  <span id="slotStatus1" style="color: var(--neon); font-size: 0.65rem;">Primary</span>
+                </div>
+                <div id="slotContent1">
+                  <div class="gallery-slot-empty" onclick="triggerSlotUpload(1)">
+                    <span style="font-size: 1.4rem;">📷</span>
+                    <span>Upload Cover</span>
+                  </div>
+                </div>
+                <div id="slotProgress1" class="slot-progress">Uploading to Neon...</div>
+              </div>
+
+              <!-- Slot 2 -->
+              <div class="gallery-slot" id="slotCard2">
+                <div class="gallery-slot-header">
+                  <span>Slot 2 (Angle 2)</span>
+                </div>
+                <div id="slotContent2">
+                  <div class="gallery-slot-empty" onclick="triggerSlotUpload(2)">
+                    <span style="font-size: 1.4rem;">📷</span>
+                    <span>Upload Image 2</span>
+                  </div>
+                </div>
+                <div id="slotProgress2" class="slot-progress">Uploading to Neon...</div>
+              </div>
+
+              <!-- Slot 3 -->
+              <div class="gallery-slot" id="slotCard3">
+                <div class="gallery-slot-header">
+                  <span>Slot 3 (Angle 3)</span>
+                </div>
+                <div id="slotContent3">
+                  <div class="gallery-slot-empty" onclick="triggerSlotUpload(3)">
+                    <span style="font-size: 1.4rem;">📷</span>
+                    <span>Upload Image 3</span>
+                  </div>
+                </div>
+                <div id="slotProgress3" class="slot-progress">Uploading to Neon...</div>
+              </div>
+
+              <!-- Slot 4 -->
+              <div class="gallery-slot" id="slotCard4">
+                <div class="gallery-slot-header">
+                  <span>Slot 4 (Angle 4)</span>
+                </div>
+                <div id="slotContent4">
+                  <div class="gallery-slot-empty" onclick="triggerSlotUpload(4)">
+                    <span style="font-size: 1.4rem;">📷</span>
+                    <span>Upload Image 4</span>
+                  </div>
+                </div>
+                <div id="slotProgress4" class="slot-progress">Uploading to Neon...</div>
+              </div>
+
+              <!-- Slot 5 -->
+              <div class="gallery-slot" id="slotCard5">
+                <div class="gallery-slot-header">
+                  <span>Slot 5 (Details)</span>
+                </div>
+                <div id="slotContent5">
+                  <div class="gallery-slot-empty" onclick="triggerSlotUpload(5)">
+                    <span style="font-size: 1.4rem;">📷</span>
+                    <span>Upload Image 5</span>
+                  </div>
+                </div>
+                <div id="slotProgress5" class="slot-progress">Uploading to Neon...</div>
+              </div>
+
+              <!-- Slot 6 -->
+              <div class="gallery-slot" id="slotCard6">
+                <div class="gallery-slot-header">
+                  <span>Slot 6 (All Colors)</span>
+                </div>
+                <div id="slotContent6">
+                  <div class="gallery-slot-empty" onclick="triggerSlotUpload(6)">
+                    <span style="font-size: 1.4rem;">📷</span>
+                    <span>Upload Image 6</span>
+                  </div>
+                </div>
+                <div id="slotProgress6" class="slot-progress">Uploading to Neon...</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TINYMCE FULL DESCRIPTION -->
+          <div class="form-full">
+            <label class="field-label">Full Specifications & Description (Rich Text WYSIWYG)</label>
             <textarea id="prodDesc" class="input-field" placeholder="Full specifications, standards (e.g. ANSI Z87.1)..."></textarea>
           </div>
         </div>
@@ -662,7 +901,59 @@ export default defineEventHandler(async (event) => {
     let allProducts = [];
     let allCategories = [];
     let allBrands = [];
-    const curlExample = ${JSON.stringify('curl -X POST https://your-site/api/v1/products -H "X-API-Key: mbos_ai_agent_secret_key" -H "Content-Type: application/json" -d \'{"name": "Safety Glasses Pro", "balance": 50}\'')};
+    const curlExample = ${JSON.stringify('curl -X POST https://mbos-chamish.yithanglee.workers.dev/api/v1/products -H "X-API-Key: mbos_ai_agent_secret_key" -H "Content-Type: application/json" -d \'{"name": "Safety Glasses Pro", "balance": 50}\'')};
+
+    // --- THEME TOGGLE (LIGHT / DARK) ---
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('mbos_admin_theme', next);
+      updateThemeButton(next);
+
+      // Reload TinyMCE editor skin if initialized
+      if (tinymce.get('prodDesc')) {
+        const content = tinymce.get('prodDesc').getContent();
+        tinymce.get('prodDesc').destroy();
+        initTinyMCE(next, content);
+      }
+    }
+
+    function updateThemeButton(theme) {
+      const icon = document.getElementById('themeIcon');
+      const label = document.getElementById('themeLabel');
+      if (theme === 'light') {
+        if (icon) icon.textContent = '🌙';
+        if (label) label.textContent = 'Dark';
+      } else {
+        if (icon) icon.textContent = '☀️';
+        if (label) label.textContent = 'Light';
+      }
+    }
+
+    // --- TINYMCE WYSIWYG INITIALIZATION ---
+    function initTinyMCE(theme, initialContent = null) {
+      const isLight = theme === 'light';
+      tinymce.init({
+        selector: '#prodDesc',
+        height: 280,
+        menubar: false,
+        plugins: ['lists', 'link', 'table', 'code'],
+        toolbar: 'undo redo | blocks | bold italic underline | bullist numlist | table | link code',
+        skin: isLight ? 'oxide' : 'oxide-dark',
+        content_css: isLight ? 'default' : 'dark',
+        branding: false,
+        promotion: false,
+        setup: (editor) => {
+          editor.on('init', () => {
+            if (initialContent !== null) {
+              editor.setContent(initialContent);
+            }
+          });
+          editor.on('change', () => editor.save());
+        }
+      });
+    }
 
     function switchTab(name) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -675,6 +966,9 @@ export default defineEventHandler(async (event) => {
     }
 
     async function init() {
+      const savedTheme = localStorage.getItem('mbos_admin_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      updateThemeButton(savedTheme);
+      initTinyMCE(savedTheme);
       await loadInitialData();
     }
 
@@ -714,7 +1008,7 @@ export default defineEventHandler(async (event) => {
     function renderProducts(products) {
       const tbody = document.getElementById('productsTableBody');
       if (products.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 3rem;">No products found matching filters.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 3rem;">No products found matching filters.</td></tr>';
         return;
       }
 
@@ -722,6 +1016,7 @@ export default defineEventHandler(async (event) => {
         const cat = allCategories.find(c => c.id === p.category_id);
         const brand = allBrands.find(b => b.id === p.brand_id);
         const img = p.img_url ? (p.img_url.startsWith('http') ? p.img_url : \`https://br-floral-tree-b35p9voh.storage.c-4.ap-southeast-1.aws.neon.tech/assets/\${p.img_url}\`) : '/img/product/placeholder.jpg';
+        const galleryCount = [p.img_url, p.img_url2, p.img_url3, p.img_url4, p.img_url5, p.img_url6].filter(Boolean).length;
 
         return \`
           <tr>
@@ -730,13 +1025,16 @@ export default defineEventHandler(async (event) => {
             </td>
             <td><span class="badge-pill">#\${p.id}</span></td>
             <td>
-              <div style="font-weight: 600; color: #fff;">\${escapeHtml(p.name)}</div>
+              <div style="font-weight: 600; color: var(--text-heading);">\${escapeHtml(p.name)}</div>
               <div style="font-size: 0.75rem; color: var(--text-muted);">\${escapeHtml(p.short_desc || '')}</div>
             </td>
             <td><span class="badge-pill">\${cat ? escapeHtml(cat.name) : '-'}</span></td>
             <td><span class="badge-pill">\${brand ? escapeHtml(brand.name) : '-'}</span></td>
             <td>
               <span style="font-weight: 600; color: \${(p.balance || 0) > 0 ? '#34d399' : '#f87171'}">\${p.balance ?? 0}</span>
+            </td>
+            <td>
+              <span class="badge-pill" style="font-size: 0.7rem;">\${galleryCount} \${galleryCount === 1 ? 'image' : 'images'}</span>
             </td>
             <td style="text-align: right;">
               <button class="btn btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;" onclick="editProduct(\${p.id})">Edit</button>
@@ -762,10 +1060,86 @@ export default defineEventHandler(async (event) => {
       renderProducts(filtered);
     }
 
-    // Product Modal & Upload
+    // --- MULTI-IMAGE GALLERY SLOTS LOGIC ---
+    function resolveImgUrl(key) {
+      if (!key) return '';
+      return key.startsWith('http') ? key : \`https://br-floral-tree-b35p9voh.storage.c-4.ap-southeast-1.aws.neon.tech/assets/\${key}\`;
+    }
+
+    function renderSlotUI(slotNum, key) {
+      const card = document.getElementById('slotCard' + slotNum);
+      const container = document.getElementById('slotContent' + slotNum);
+      const hiddenInput = document.getElementById('prodImgUrl' + slotNum);
+      hiddenInput.value = key || '';
+
+      if (key) {
+        card.classList.add('has-image');
+        const url = resolveImgUrl(key);
+        const fileName = key.split('/').pop();
+        container.innerHTML = \`
+          <img src="\${url}" class="gallery-slot-thumb" alt="Slot \${slotNum}" onerror="this.src='/img/logo/logo1.png'">
+          <div style="font-size: 0.7rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 0.35rem;" title="\${escapeHtml(key)}">\${escapeHtml(fileName)}</div>
+          <div class="gallery-slot-actions">
+            <button type="button" class="gallery-slot-btn" onclick="triggerSlotUpload(\${slotNum})">Change</button>
+            <button type="button" class="gallery-slot-btn btn-remove" onclick="removeSlotImage(\${slotNum})">Remove</button>
+          </div>
+        \`;
+      } else {
+        card.classList.remove('has-image');
+        const slotLabel = slotNum === 1 ? 'Cover' : ('Image ' + slotNum);
+        container.innerHTML = \`
+          <div class="gallery-slot-empty" onclick="triggerSlotUpload(\${slotNum})">
+            <span style="font-size: 1.4rem;">📷</span>
+            <span>Upload \${slotLabel}</span>
+          </div>
+        \`;
+      }
+    }
+
+    function triggerSlotUpload(slotNum) {
+      const fileInput = document.getElementById('fileSlot' + slotNum);
+      if (fileInput) fileInput.click();
+    }
+
+    function removeSlotImage(slotNum) {
+      renderSlotUI(slotNum, '');
+    }
+
+    async function handleSlotUpload(event, slotNum) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const contentBox = document.getElementById('slotContent' + slotNum);
+      const progressBox = document.getElementById('slotProgress' + slotNum);
+      contentBox.style.display = 'none';
+      progressBox.style.display = 'block';
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const res = await fetch('/api/v1/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          renderSlotUI(slotNum, data.key);
+        } else {
+          alert('Upload failed: ' + (data.statusMessage || 'Unknown error'));
+        }
+      } catch (err) {
+        alert('Upload failed: ' + err.message);
+      } finally {
+        contentBox.style.display = 'block';
+        progressBox.style.display = 'none';
+        event.target.value = '';
+      }
+    }
+
+    // --- PRODUCT MODAL & OPEN / CLOSE ---
     function openProductModal(prod = null) {
       document.getElementById('productForm').reset();
-      document.getElementById('previewContainer').style.display = 'none';
 
       if (prod) {
         document.getElementById('modalProductTitle').textContent = 'Edit Product #' + prod.id;
@@ -774,19 +1148,38 @@ export default defineEventHandler(async (event) => {
         document.getElementById('prodCategory').value = prod.category_id || '';
         document.getElementById('prodBrand').value = prod.brand_id || '';
         document.getElementById('prodBalance').value = prod.balance ?? 0;
-        document.getElementById('prodImgUrl').value = prod.img_url || '';
         document.getElementById('prodShortDesc').value = prod.short_desc || '';
-        document.getElementById('prodDesc').value = prod.desc || '';
 
-        if (prod.img_url) {
-          const img = prod.img_url.startsWith('http') ? prod.img_url : \`https://br-floral-tree-b35p9voh.storage.c-4.ap-southeast-1.aws.neon.tech/assets/\${prod.img_url}\`;
-          document.getElementById('previewImg').src = img;
-          document.getElementById('previewUrl').textContent = prod.img_url;
-          document.getElementById('previewContainer').style.display = 'flex';
+        // Load all 6 gallery slots
+        renderSlotUI(1, prod.img_url || '');
+        renderSlotUI(2, prod.img_url2 || '');
+        renderSlotUI(3, prod.img_url3 || '');
+        renderSlotUI(4, prod.img_url4 || '');
+        renderSlotUI(5, prod.img_url5 || '');
+        renderSlotUI(6, prod.img_url6 || '');
+
+        // Set TinyMCE content
+        const descContent = prod.desc || '';
+        if (tinymce.get('prodDesc')) {
+          tinymce.get('prodDesc').setContent(descContent);
+        } else {
+          document.getElementById('prodDesc').value = descContent;
         }
       } else {
         document.getElementById('modalProductTitle').textContent = 'Add New Product';
         document.getElementById('prodId').value = '';
+        renderSlotUI(1, '');
+        renderSlotUI(2, '');
+        renderSlotUI(3, '');
+        renderSlotUI(4, '');
+        renderSlotUI(5, '');
+        renderSlotUI(6, '');
+
+        if (tinymce.get('prodDesc')) {
+          tinymce.get('prodDesc').setContent('');
+        } else {
+          document.getElementById('prodDesc').value = '';
+        }
       }
 
       document.getElementById('productModal').classList.add('open');
@@ -801,45 +1194,17 @@ export default defineEventHandler(async (event) => {
       if (p) openProductModal(p);
     }
 
-    async function handleFileUpload(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const promptBox = document.getElementById('uploadPrompt');
-      const progressBox = document.getElementById('uploadProgress');
-      promptBox.style.display = 'none';
-      progressBox.style.display = 'block';
-
-      const formData = new FormData();
-      formData.append('file', file);
-
-      try {
-        const res = await fetch('/api/v1/upload', {
-          method: 'POST',
-          body: formData
-        });
-        const data = await res.json();
-        if (res.ok && data.success) {
-          document.getElementById('prodImgUrl').value = data.key;
-          document.getElementById('previewImg').src = data.url;
-          document.getElementById('previewUrl').textContent = data.key;
-          document.getElementById('previewContainer').style.display = 'flex';
-        } else {
-          alert('Upload failed: ' + (data.statusMessage || 'Unknown error'));
-        }
-      } catch (err) {
-        alert('Upload failed: ' + err.message);
-      } finally {
-        promptBox.style.display = 'block';
-        progressBox.style.display = 'none';
-      }
-    }
-
     document.getElementById('productForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const saveBtn = document.getElementById('saveProductBtn');
       saveBtn.disabled = true;
       saveBtn.textContent = 'Saving...';
+
+      // Save TinyMCE editor content
+      if (tinymce.get('prodDesc')) {
+        tinymce.get('prodDesc').save();
+      }
+      const fullDesc = tinymce.get('prodDesc') ? tinymce.get('prodDesc').getContent() : document.getElementById('prodDesc').value;
 
       const id = document.getElementById('prodId').value;
       const payload = {
@@ -847,9 +1212,14 @@ export default defineEventHandler(async (event) => {
         category_id: document.getElementById('prodCategory').value || null,
         brand_id: document.getElementById('prodBrand').value || null,
         balance: parseInt(document.getElementById('prodBalance').value, 10) || 0,
-        img_url: document.getElementById('prodImgUrl').value || null,
+        img_url: document.getElementById('prodImgUrl1').value || null,
+        img_url2: document.getElementById('prodImgUrl2').value || null,
+        img_url3: document.getElementById('prodImgUrl3').value || null,
+        img_url4: document.getElementById('prodImgUrl4').value || null,
+        img_url5: document.getElementById('prodImgUrl5').value || null,
+        img_url6: document.getElementById('prodImgUrl6').value || null,
         short_desc: document.getElementById('prodShortDesc').value || null,
-        desc: document.getElementById('prodDesc').value || null,
+        desc: fullDesc || null,
       };
 
       try {
@@ -893,7 +1263,7 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Banners
+    // --- BANNERS TAB ---
     async function loadBanners() {
       try {
         const res = await fetch('/api/v1/banners');
@@ -909,7 +1279,7 @@ export default defineEventHandler(async (event) => {
           const img = b.img_url ? (b.img_url.startsWith('http') ? b.img_url : \`https://br-floral-tree-b35p9voh.storage.c-4.ap-southeast-1.aws.neon.tech/assets/\${b.img_url}\`) : '';
           return \`
             <tr>
-              <td><img src="\${img}" class="product-thumb" style="width: 80px; height: 40px;"></td>
+              <td><img src="\${img}" class="product-thumb" style="width: 80px; height: 40px; object-fit: cover;"></td>
               <td><span class="badge-pill">#\${b.order || 0}</span></td>
               <td>\${escapeHtml(b.remarks || 'Hero Banner')}</td>
               <td><span class="badge-pill" style="color: \${b.is_show ? '#34d399' : '#94a3b8'}">\${b.is_show ? 'Visible' : 'Hidden'}</span></td>
@@ -930,7 +1300,7 @@ export default defineEventHandler(async (event) => {
       loadBanners();
     }
 
-    // Sections
+    // --- SECTIONS TAB ---
     async function loadSections() {
       try {
         const res = await fetch('/api/v1/sections');
@@ -940,7 +1310,7 @@ export default defineEventHandler(async (event) => {
         tbody.innerHTML = sections.map(s => \`
           <tr>
             <td><span class="badge-pill">#\${s.id}</span></td>
-            <td><strong>\${escapeHtml(s.name)}</strong></td>
+            <td><strong style="color: var(--text-heading);">\${escapeHtml(s.name)}</strong></td>
             <td>\${escapeHtml(s.plain_content1 || '-')}</td>
             <td>\${escapeHtml(s.plain_content2 || '-')}</td>
             <td style="text-align: right;">

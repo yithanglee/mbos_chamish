@@ -2,8 +2,8 @@
 // Precompiled at build-time for Cloudflare Workers (zero runtime eval / zero with-statement)
 
 export const rawBlogNavContent: string = "<!-- Header -->\n<header class=\"header chasmishco_header\">\n    <div class=\"container\">\n        <div class=\"row align-items-center\">\n            <div class=\"col-xl-3 col-lg-2 col-4\">\n                <div class=\"logo\">\n                    <a class=\"navi\" href=\"/home\">\n                        <img src=\"/img/logo/logo1.png\" alt=\"chasmishco Logo\">\n                    </a>\n                </div>\n            </div>\n            <div class=\"col-xl-9 col-lg-10 col-8 position-relative\">\n                <div class=\"header_right_sidebar\">\n                    <div class=\"login_account\">\n                        <div class=\"account\">\n                            <ul>\n                                <li>\n                                    <a href=\"https://wa.me/60193807061?text=Hello%20there!\">\n                                        <img src=\"/img/wa150.png\" style=\"width: 24px;\"> +6019-380 7061 | +6011-6316 9899\n                                    </a>\n                                </li>\n                            </ul>\n                        </div>\n                    </div>\n                    <div class=\"glass_toggle_menu\">\n                        <nav class=\"mainmenu_nav mainmenu__nav\">\n                            <ul class=\"main_menu\">\n                                <li>\n                                    <a class=\"navi\" href=\"/home\">Home</a>\n                                </li>\n                                <li class=\"d-none\">\n        <a href=\"/products_rx\" class=\"navi\">Prescription Glasses</a>\n      </li><li class=\"d-none\">\n        <a href=\"/products_safety_spectacles\" class=\"navi\">Safety Spectacles</a>\n      </li><li class=\"d-none\">\n        <a href=\"/return_refund_policy\" class=\"navi\">Return Refund Policy</a>\n      </li><li class=\"d-none\">\n        <a href=\"/privacy_policy\" class=\"navi\">Privacy Policy</a>\n      </li><li class=\"d-none\">\n        <a href=\"/terms_of_service\" class=\"navi\">Terms of Service</a>\n      </li><li>\n        <a href=\"/contact\" class=\"navi\">Contact Us</a>\n      </li><li>\n        <a href=\"/certifications\" class=\"navi\">Certifications</a>\n      </li><li>\n        <a href=\"/products\" class=\"navi\">Products</a>\n      </li><li>\n        <a href=\"/about_us\" class=\"navi\">About Us</a>\n      </li>\n                            </ul>\n                        </nav>\n                        <div class=\"hamburger-box button mobile-toggle\">\n                            <span class=\"mobile-toggle__icon\"></span>\n                        </div>\n                    </div>\n                    <div class=\"mobile-menu-toggle d-lg-none\">\n                        <button class=\"menu-toggle\">\n                            <span></span>\n                            <span></span>\n                            <span></span>\n                        </button>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </div>\n</header>\n\n<!-- Mobile Menu Start -->\n<div class=\"mobile-menu mobile-menu-items\">\n    <div class=\"mobile-menu-close\">\n        <button class=\"close-toggle\">\n            <span></span>\n            <span></span>\n        </button>\n    </div>\n    <ul class=\"main_menu\">\n        <li>\n            <a class=\"navi\" href=\"/home\">Home</a>\n        </li>\n        <li class=\"d-none\">\n        <a href=\"/products_rx\" class=\"navi\">Prescription Glasses</a>\n      </li><li class=\"d-none\">\n        <a href=\"/products_safety_spectacles\" class=\"navi\">Safety Spectacles</a>\n      </li><li class=\"d-none\">\n        <a href=\"/return_refund_policy\" class=\"navi\">Return Refund Policy</a>\n      </li><li class=\"d-none\">\n        <a href=\"/privacy_policy\" class=\"navi\">Privacy Policy</a>\n      </li><li class=\"d-none\">\n        <a href=\"/terms_of_service\" class=\"navi\">Terms of Service</a>\n      </li><li>\n        <a href=\"/contact\" class=\"navi\">Contact Us</a>\n      </li><li>\n        <a href=\"/certifications\" class=\"navi\">Certifications</a>\n      </li><li>\n        <a href=\"/products\" class=\"navi\">Products</a>\n      </li><li>\n        <a href=\"/about_us\" class=\"navi\">About Us</a>\n      </li>\n    </ul>\n</div>\n<div class=\"menu-overlay\"></div>\n<!-- Mobile Menu End -->\n<!-- Cart Overlay -->\n<div class=\"body_overlay\"></div>\n<!--// Header -->";
-export const buildNumber: string = "2026.11.02-9663850";
-export const buildTime: string = "2026-11-02 09:12:53 UTC";
+export const buildNumber: string = "2026.11.02-d85f7e9";
+export const buildTime: string = "2026-11-02 09:27:54 UTC";
 
 export const compiledTemplates: Record<string, (locals: any) => string> = {
   "index": function anonymous(locals, escapeFn, include, rethrow
@@ -1098,14 +1098,24 @@ data = __locals.data,
     ; __append(escapeFn( product.img_url5))
     ; __append("\" alt=\"")
     ; __append(escapeFn( product.name))
-    ; __append("\">\n                        </div>\n                    </div>\n                    <div class=\"sm_roduct_nav nav nav-tabs\" role=\"tablist\">\n                        <a class=\"active\" id=\"/img1-tab\" data-bs-toggle=\"tab\" href=\"#img1\" role=\"tab\"\n                            aria-controls=\"/img1\" aria-selected=\"true\">\n                            <img src=\"")
+    ; __append("\">\n                        </div>\n                        ")
+    ;  if (product.img_url6 != null && product.img_url6 !== '') { 
+    ; __append("\n                        <div class=\"big_img tab-pane fade\" id=\"img6\" role=\"tabpanel\">\n                            <img src=\"")
+    ; __append(escapeFn( data.blogUrl ))
+    ; __append("/")
+    ; __append(escapeFn( product.img_url6))
+    ; __append("\" alt=\"")
+    ; __append(escapeFn( product.name))
+    ; __append("\">\n                        </div>\n                        ")
+    ;  } 
+    ; __append("\n                    </div>\n                    <div class=\"sm_roduct_nav nav nav-tabs\" role=\"tablist\">\n                        <a class=\"active\" id=\"/img1-tab\" data-bs-toggle=\"tab\" href=\"#img1\" role=\"tab\"\n                            aria-controls=\"/img1\" aria-selected=\"true\">\n                            <img src=\"")
     ; __append(escapeFn( data.blogUrl ))
     ; __append("/")
     ; __append(escapeFn( product.img_url))
     ; __append("\" alt=\"")
     ; __append(escapeFn( product.name))
     ; __append("\">\n                        </a>\n                        ")
-    ;  if (product.img_url2 != null) { 
+    ;  if (product.img_url2 != null && product.img_url2 !== '') { 
     ; __append("\n                        <a id=\"nav-img2-tab\" data-bs-toggle=\"tab\" href=\"#img2\" role=\"tab\" aria-controls=\"/img2\"\n                            aria-selected=\"false\">\n                            <img src=\"")
     ; __append(escapeFn( data.blogUrl ))
     ; __append("/")
@@ -1115,7 +1125,7 @@ data = __locals.data,
     ; __append("\">\n                        </a>\n                        ")
     ;  } 
     ; __append("\n                        ")
-    ;  if (product.img_url3 != null) { 
+    ;  if (product.img_url3 != null && product.img_url3 !== '') { 
     ; __append("\n                        <a id=\"nav-img3-tab\" data-bs-toggle=\"tab\" href=\"#img3\" role=\"tab\" aria-controls=\"/img3\"\n                            aria-selected=\"false\">\n                            <img src=\"")
     ; __append(escapeFn( data.blogUrl ))
     ; __append("/")
@@ -1125,7 +1135,7 @@ data = __locals.data,
     ; __append("\">\n                        </a>\n                        ")
     ;  } 
     ; __append("\n                        ")
-    ;  if (product.img_url4 != null) { 
+    ;  if (product.img_url4 != null && product.img_url4 !== '') { 
     ; __append("\n                        <a id=\"nav-img4-tab\" data-bs-toggle=\"tab\" href=\"#img4\" role=\"tab\" aria-controls=\"/img4\"\n                            aria-selected=\"false\">\n                            <img src=\"")
     ; __append(escapeFn( data.blogUrl ))
     ; __append("/")
@@ -1135,11 +1145,21 @@ data = __locals.data,
     ; __append("\">\n                        </a>\n                        ")
     ;  } 
     ; __append("\n                        ")
-    ;  if (product.img_url5 != null) { 
+    ;  if (product.img_url5 != null && product.img_url5 !== '') { 
     ; __append("\n                        <a id=\"nav-img5-tab\" data-bs-toggle=\"tab\" href=\"#img5\" role=\"tab\" aria-controls=\"/img5\"\n                            aria-selected=\"false\">\n                            <img src=\"")
     ; __append(escapeFn( data.blogUrl ))
     ; __append("/")
     ; __append(escapeFn( product.img_url5))
+    ; __append("\" alt=\"")
+    ; __append(escapeFn( product.name))
+    ; __append("\">\n                        </a>\n                        ")
+    ;  } 
+    ; __append("\n                        ")
+    ;  if (product.img_url6 != null && product.img_url6 !== '') { 
+    ; __append("\n                        <a id=\"nav-img6-tab\" data-bs-toggle=\"tab\" href=\"#img6\" role=\"tab\" aria-controls=\"/img6\"\n                            aria-selected=\"false\">\n                            <img src=\"")
+    ; __append(escapeFn( data.blogUrl ))
+    ; __append("/")
+    ; __append(escapeFn( product.img_url6))
     ; __append("\" alt=\"")
     ; __append(escapeFn( product.name))
     ; __append("\">\n                        </a>\n                        ")

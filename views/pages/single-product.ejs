@@ -50,34 +50,45 @@
                         <div class="big_img tab-pane fade" id="img5" role="tabpanel">
                             <img src="<%= data.blogUrl %>/<%= product.img_url5%>" alt="<%= product.name%>">
                         </div>
+                        <% if (product.img_url6 != null && product.img_url6 !== '') { %>
+                        <div class="big_img tab-pane fade" id="img6" role="tabpanel">
+                            <img src="<%= data.blogUrl %>/<%= product.img_url6%>" alt="<%= product.name%>">
+                        </div>
+                        <% } %>
                     </div>
                     <div class="sm_roduct_nav nav nav-tabs" role="tablist">
                         <a class="active" id="/img1-tab" data-bs-toggle="tab" href="#img1" role="tab"
                             aria-controls="/img1" aria-selected="true">
                             <img src="<%= data.blogUrl %>/<%= product.img_url%>" alt="<%= product.name%>">
                         </a>
-                        <% if (product.img_url2 != null) { %>
+                        <% if (product.img_url2 != null && product.img_url2 !== '') { %>
                         <a id="nav-img2-tab" data-bs-toggle="tab" href="#img2" role="tab" aria-controls="/img2"
                             aria-selected="false">
                             <img src="<%= data.blogUrl %>/<%= product.img_url2%>" alt="<%= product.name%>">
                         </a>
                         <% } %>
-                        <% if (product.img_url3 != null) { %>
+                        <% if (product.img_url3 != null && product.img_url3 !== '') { %>
                         <a id="nav-img3-tab" data-bs-toggle="tab" href="#img3" role="tab" aria-controls="/img3"
                             aria-selected="false">
                             <img src="<%= data.blogUrl %>/<%= product.img_url3%>" alt="<%= product.name%>">
                         </a>
                         <% } %>
-                        <% if (product.img_url4 != null) { %>
+                        <% if (product.img_url4 != null && product.img_url4 !== '') { %>
                         <a id="nav-img4-tab" data-bs-toggle="tab" href="#img4" role="tab" aria-controls="/img4"
                             aria-selected="false">
                             <img src="<%= data.blogUrl %>/<%= product.img_url4%>" alt="<%= product.name%>">
                         </a>
                         <% } %>
-                        <% if (product.img_url5 != null) { %>
+                        <% if (product.img_url5 != null && product.img_url5 !== '') { %>
                         <a id="nav-img5-tab" data-bs-toggle="tab" href="#img5" role="tab" aria-controls="/img5"
                             aria-selected="false">
                             <img src="<%= data.blogUrl %>/<%= product.img_url5%>" alt="<%= product.name%>">
+                        </a>
+                        <% } %>
+                        <% if (product.img_url6 != null && product.img_url6 !== '') { %>
+                        <a id="nav-img6-tab" data-bs-toggle="tab" href="#img6" role="tab" aria-controls="/img6"
+                            aria-selected="false">
+                            <img src="<%= data.blogUrl %>/<%= product.img_url6%>" alt="<%= product.name%>">
                         </a>
                         <% } %>
                     </div>
