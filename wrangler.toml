@@ -9,4 +9,4 @@ binding = "ASSETS"
 
 [[r2_buckets]]
 binding = "R2_BUCKET"
-bucket_name = "mbos-assets"
+bucket_name = "mbos-asset"

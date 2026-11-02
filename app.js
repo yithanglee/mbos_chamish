@@ -20,9 +20,9 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const helmet = require("helmet");
 
-var indexRouter = require('./routes/index');
-var apiRouter = require('./routes/api');
-var usersRouter = require('./routes/users');
+var indexRouter = require('./legacy_express_routes/index');
+var apiRouter = require('./legacy_express_routes/api');
+var usersRouter = require('./legacy_express_routes/users');
 const fs = require('fs');
 
 // Source directory; this should already exist

@@ -2,7 +2,9 @@ import type { H3Event } from 'h3';
 import fs from 'node:fs';
 import path from 'node:path';
 
-export const bucketName = process.env.R2_BUCKET_NAME || 'mbos-assets';
+export const bucketName = process.env.R2_BUCKET_NAME || 'mbos-asset';
+
+const DEFAULT_R2_ENDPOINT = 'https://7b3e2d417e9869cceb889fee76d4cf15.r2.cloudflarestorage.com';
 
 /**
  * Returns the public URL for an asset key.
@@ -23,7 +25,7 @@ export function getPublicStorageUrl(key: string): string {
   }
 
   // Default fallback to S3/R2 endpoint if provided
-  const s3Endpoint = (process.env.R2_ENDPOINT || process.env.AWS_ENDPOINT_URL_S3 || '').replace(/\/$/, '');
+  const s3Endpoint = (process.env.R2_ENDPOINT || process.env.AWS_ENDPOINT_URL_S3 || DEFAULT_R2_ENDPOINT).replace(/\/$/, '');
   if (s3Endpoint) {
     return `${s3Endpoint}/${bucketName}/${cleanKey}`;
   }
@@ -32,7 +34,7 @@ export function getPublicStorageUrl(key: string): string {
 }
 
 export function getS3Endpoint(): string {
-  return (process.env.R2_ENDPOINT || process.env.AWS_ENDPOINT_URL_S3 || '').replace(/\/$/, '');
+  return (process.env.R2_ENDPOINT || process.env.AWS_ENDPOINT_URL_S3 || DEFAULT_R2_ENDPOINT).replace(/\/$/, '');
 }
 
 /**

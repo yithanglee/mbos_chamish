@@ -1,5 +1,5 @@
 import { defineEventHandler, setResponseHeader } from 'h3';
-import { getProducts } from '../../utils/db';
+import { getProducts } from '../utils/db';
 
 export default defineEventHandler(async (event) => {
   setResponseHeader(event, 'content-type', 'application/xml; charset=utf-8');

@@ -135,7 +135,7 @@
               <!-- End Single Footer -->
               <% } else { %>
 
-                <% bottom_footer=data.sections.filter((s,i)=> {return s.name == 'Bottom Footer'})[0] %>
+                <% var bottom_footer = data.sections.filter((s,i)=> {return s.name == 'Bottom Footer'})[0] %>
 
                   <% if (bottom_footer.content1 !=null ) { %>
                     <div class="<%- bottom_footer.content1_class_list %>"">
@@ -191,7 +191,7 @@
               </div>
               <% } else { %>
 
-                <% bottom_nav=data.sections.filter((s,i)=> {return s.name == 'Bottom Nav'})[0] %>
+                <% var bottom_nav = data.sections.filter((s,i)=> {return s.name == 'Bottom Nav'})[0] %>
 
                   <% if (bottom_nav.content1 !=null ) { %>
                     <div class="<%- bottom_nav.content1_class_list %>"">

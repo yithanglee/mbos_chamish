@@ -1,6 +1,6 @@
 import { defineEventHandler, readMultipartFormData, readBody, getHeader, createError } from 'h3';
-import { uploadImage } from '../../../utils/storage';
-import { requireAuth } from '../../../utils/auth';
+import { uploadImage } from '../../utils/storage';
+import { requireAuth } from '../../utils/auth';
 
 export default defineEventHandler(async (event) => {
   await requireAuth(event);

@@ -1,6 +1,6 @@
 import { defineEventHandler, getRouterParam, readBody, createError } from 'h3';
-import { updateBanner } from '../../../../utils/db';
-import { requireAuth } from '../../../../utils/auth';
+import { updateBanner } from '../../../utils/db';
+import { requireAuth } from '../../../utils/auth';
 
 export default defineEventHandler(async (event) => {
   await requireAuth(event);
