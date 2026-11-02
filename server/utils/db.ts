@@ -316,6 +316,85 @@ export async function getPages() {
   }));
 }
 
+export async function getPageByRoute(route: string) {
+  const sql = getDb();
+  const normalizedWithSlash = route.startsWith('/') ? route : '/' + route;
+  const normalizedWithoutSlash = route.replace(/^\/+/, '');
+  const rows = await sql`
+    SELECT * FROM pages
+    WHERE route_name = ${normalizedWithSlash} OR route_name = ${normalizedWithoutSlash}
+    LIMIT 1
+  `;
+  if (!rows || rows.length === 0) return null;
+  const p = rows[0];
+  return {
+    ...p,
+    id: typeof p.id === 'string' ? parseInt(p.id, 10) : p.id,
+    img_url: normalizeImgUrl(p.img_url),
+  };
+}
+
+export async function createPage(data: {
+  name: string;
+  subtitle?: string;
+  route_name: string;
+  content: string;
+  img_url?: string;
+  sorting_index?: number;
+  show_nav?: boolean;
+}) {
+  const sql = getDb();
+  const idRes = await sql`SELECT COALESCE(MAX(id::int), 0) + 1 AS next_id FROM pages`;
+  const nextId = parseInt(idRes[0].next_id, 10);
+  const route = data.route_name.startsWith('/') ? data.route_name : '/' + data.route_name;
+
+  const rows = await sql`
+    INSERT INTO pages (
+      id, name, subtitle, route_name, content, img_url, sorting_index, show_nav, inserted_at, updated_at
+    ) VALUES (
+      ${nextId},
+      ${data.name},
+      ${data.subtitle || null},
+      ${route},
+      ${data.content || ''},
+      ${normalizeImgUrl(data.img_url) || null},
+      ${data.sorting_index !== undefined ? data.sorting_index : 10},
+      ${data.show_nav !== undefined ? data.show_nav : false},
+      NOW(), NOW()
+    ) RETURNING *
+  `;
+  return rows[0];
+}
+
+export async function updatePage(id: number | string, data: any) {
+  const sql = getDb();
+  const numId = typeof id === 'string' ? parseInt(id, 10) : id;
+  const route = data.route_name ? (data.route_name.startsWith('/') ? data.route_name : '/' + data.route_name) : null;
+
+  const rows = await sql`
+    UPDATE pages SET
+      name = COALESCE(${data.name}, name),
+      subtitle = COALESCE(${data.subtitle}, subtitle),
+      route_name = COALESCE(${route}, route_name),
+      content = COALESCE(${data.content}, content),
+      img_url = COALESCE(${data.img_url ? normalizeImgUrl(data.img_url) : null}, img_url),
+      sorting_index = COALESCE(${data.sorting_index}, sorting_index),
+      show_nav = COALESCE(${data.show_nav}, show_nav),
+      updated_at = NOW()
+    WHERE id::int = ${numId}
+    RETURNING *
+  `;
+  return rows[0];
+}
+
+export async function deletePage(id: number | string) {
+  const sql = getDb();
+  const numId = typeof id === 'string' ? parseInt(id, 10) : id;
+  await sql`DELETE FROM pages WHERE id::int = ${numId}`;
+  return { success: true, id: numId };
+}
+
 export async function getContact() {
   return await getSectionByName('Top Nav Contact');
 }
+

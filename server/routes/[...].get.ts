@@ -1,5 +1,5 @@
 import { defineEventHandler, getQuery, setResponseHeader } from 'h3';
-import { getProducts, getProductById, getSections, getBanners } from '../utils/db';
+import { getProducts, getProductById, getSections, getBanners, getPageByRoute } from '../utils/db';
 import { getPublicStorageUrl, getS3Endpoint, bucketName } from '../utils/storage';
 import { renderTemplate, blogNavContent } from '../utils/renderer';
 import { buildNumber, buildTime } from '../utils/compiled-templates';
@@ -113,7 +113,15 @@ export default defineEventHandler(async (event) => {
     buildTime,
   };
 
-  const pageHtml = renderTemplate(`pages/${cleanKey}`, renderVars) || renderTemplate('pages/landing', renderVars) || '';
+  let pageHtml = renderTemplate(`pages/${cleanKey}`, renderVars);
+  if (!pageHtml) {
+    const dbPage = await getPageByRoute(cleanKey);
+    if (dbPage && dbPage.content) {
+      pageHtml = dbPage.content;
+    } else {
+      pageHtml = renderTemplate('pages/landing', renderVars) || '';
+    }
+  }
   if (query.partial) {
     return pageHtml;
   }
