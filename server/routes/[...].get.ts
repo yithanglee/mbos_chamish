@@ -2,6 +2,7 @@ import { defineEventHandler, getQuery, setResponseHeader } from 'h3';
 import { getProducts, getProductById, getSections, getBanners } from '../utils/db';
 import { getPublicStorageUrl, getS3Endpoint, bucketName } from '../utils/storage';
 import { renderTemplate, blogNavContent } from '../utils/renderer';
+import { buildNumber, buildTime } from '../utils/compiled-templates';
 
 export default defineEventHandler(async (event) => {
   const urlPath = event.path.split('?')[0];
@@ -54,6 +55,8 @@ export default defineEventHandler(async (event) => {
       content: blogNavContent,
       data: data,
       product: product,
+      buildNumber,
+      buildTime,
     };
 
     const pageHtml = renderTemplate('pages/single-product', renderVars) || '';
@@ -106,6 +109,8 @@ export default defineEventHandler(async (event) => {
     content: blogNavContent,
     data: data,
     product: product,
+    buildNumber,
+    buildTime,
   };
 
   const pageHtml = renderTemplate(`pages/${cleanKey}`, renderVars) || renderTemplate('pages/landing', renderVars) || '';

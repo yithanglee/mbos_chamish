@@ -148,6 +148,17 @@ app.use((req, res, next) => {
 
   next();
 });
+
+let buildInfo = { buildNumber: '2026.11.02', buildTime: '' };
+try {
+  buildInfo = require('./lib/build-info.json');
+} catch (e) {}
+
+app.use((req, res, next) => {
+  res.locals.buildNumber = buildInfo.buildNumber;
+  res.locals.buildTime = buildInfo.buildTime;
+  next();
+});
 app.get('/images/uploads/:filename', (req, res) => {
   const target = `${storage.s3Endpoint}/${storage.bucketName}/images/uploads/${encodeURIComponent(req.params.filename)}`;
   res.redirect(301, target);

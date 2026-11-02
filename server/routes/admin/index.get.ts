@@ -662,7 +662,7 @@ export default defineEventHandler(async (event) => {
     let allProducts = [];
     let allCategories = [];
     let allBrands = [];
-    const curlExample = 'curl -X POST https://your-site/api/v1/products -H "X-API-Key: mbos_ai_agent_secret_key" -H "Content-Type: application/json" -d \'{"name": "Safety Glasses Pro", "balance": 50}\'';
+    const curlExample = ${JSON.stringify('curl -X POST https://your-site/api/v1/products -H "X-API-Key: mbos_ai_agent_secret_key" -H "Content-Type: application/json" -d \'{"name": "Safety Glasses Pro", "balance": 50}\'')};
 
     function switchTab(name) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));

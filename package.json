@@ -9,7 +9,7 @@
     "start": "PORT=5101 node ./bin/www",
     "dev": "node scripts/build-templates.js && nitro dev",
     "dev:legacy": "npm run build:legacy && npm start",
-    "deploy:pages": "npm run build && npx wrangler pages deploy dist",
+    "deploy:pages": "npm run build && npx wrangler pages deploy dist --project-name mbos-chamish",
     "deploy:cf": "npm run build:legacy && npx wrangler deploy --secrets-file .env"
   },
   "dependencies": {
