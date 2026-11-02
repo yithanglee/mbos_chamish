@@ -111,6 +111,48 @@ export default defineEventHandler(() => {
           responses: { 200: { description: 'Deleted' } },
         },
       },
+      '/api/v1/pages': {
+        get: {
+          summary: 'List dynamic pages stored in Neon DB',
+          responses: { 200: { description: 'Success' } },
+        },
+        post: {
+          summary: 'Create dynamic page (route, title, HTML body)',
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['name', 'route_name', 'content'],
+                  properties: {
+                    name: { type: 'string', description: 'Page Title' },
+                    subtitle: { type: 'string' },
+                    route_name: { type: 'string', description: 'URL route starting with /' },
+                    content: { type: 'string', description: 'Full HTML/JS content' },
+                    img_url: { type: 'string' },
+                    show_nav: { type: 'boolean' },
+                  },
+                },
+              },
+            },
+          },
+          responses: { 200: { description: 'Created' } },
+        },
+      },
+      '/api/v1/pages/{id}': {
+        put: {
+          summary: 'Update dynamic page by ID',
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+          requestBody: { required: true, content: { 'application/json': { schema: { type: 'object' } } } },
+          responses: { 200: { description: 'Updated' } },
+        },
+        delete: {
+          summary: 'Delete dynamic page by ID',
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+          responses: { 200: { description: 'Deleted' } },
+        },
+      },
     },
   };
 });
