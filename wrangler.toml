@@ -7,6 +7,8 @@ compatibility_flags = ["nodejs_compat"]
 directory = "./public"
 binding = "ASSETS"
 
-[[r2_buckets]]
-binding = "R2_BUCKET"
-bucket_name = "mbos-asset"
+[vars]
+AWS_BUCKET_NAME = "assets"
+AWS_ENDPOINT_URL_S3 = "https://br-floral-tree-b35p9voh.storage.c-4.ap-southeast-1.aws.neon.tech"
+AWS_REGION = "ap-southeast-1"
+BLOG_URL = "https://br-floral-tree-b35p9voh.storage.c-4.ap-southeast-1.aws.neon.tech/assets"

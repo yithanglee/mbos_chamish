@@ -622,16 +622,16 @@ export default defineEventHandler(async (event) => {
             <input type="text" id="prodImgUrl" class="input-field" style="width: 100%;" placeholder="images/uploads/...">
           </div>
 
-          <!-- Image Upload to Cloudflare R2 Storage -->
+          <!-- Image Upload to Neon Object Storage -->
           <div class="form-full">
-            <label class="field-label">Upload Product Image (Direct to Cloudflare R2)</label>
+            <label class="field-label">Upload Product Image (Neon Object Storage)</label>
             <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
               <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileUpload(event)">
               <div id="uploadPrompt">
                 &#128247; <strong>Click to upload image</strong> or drag and drop<br>
-                <span style="font-size: 0.75rem; color: var(--text-muted);">PNG, JPG, WEBP stored in Cloudflare R2 (Zero Egress Fees)</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">PNG, JPG, WEBP stored in Neon Storage assets bucket</span>
               </div>
-              <div id="uploadProgress" style="display: none; color: #38bdf8;">Uploading to Cloudflare R2...</div>
+              <div id="uploadProgress" style="display: none; color: #38bdf8;">Uploading to Neon Object Storage...</div>
             </div>
             <div id="previewContainer" class="upload-preview" style="display: none;">
               <img id="previewImg" src="" alt="preview">

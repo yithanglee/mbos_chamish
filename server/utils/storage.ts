@@ -2,45 +2,59 @@ import type { H3Event } from 'h3';
 import fs from 'node:fs';
 import path from 'node:path';
 
-export const bucketName = process.env.R2_BUCKET_NAME || 'mbos-asset';
+export const bucketName = process.env.AWS_BUCKET_NAME || process.env.NEON_BUCKET_NAME || 'assets';
 
-const DEFAULT_R2_ENDPOINT = 'https://7b3e2d417e9869cceb889fee76d4cf15.r2.cloudflarestorage.com';
-
-/**
- * Returns the public URL for an asset key.
- * If R2_PUBLIC_URL is configured (e.g., https://assets.mbos.com.my or https://pub-xxx.r2.dev), uses that.
- * Otherwise, falls back to the native /images/uploads/ route served by Cloudflare Pages.
- */
-export function getPublicStorageUrl(key: string): string {
-  const cleanKey = key.replace(/^\/+/, '');
-  const r2PublicUrl = process.env.R2_PUBLIC_URL ? process.env.R2_PUBLIC_URL.replace(/\/$/, '') : '';
-  
-  if (r2PublicUrl) {
-    return `${r2PublicUrl}/${cleanKey}`;
-  }
-
-  // If pointing to images/uploads/, serve directly through our edge route
-  if (cleanKey.startsWith('images/uploads/')) {
-    return `/${cleanKey}`;
-  }
-
-  // Default fallback to S3/R2 endpoint if provided
-  const s3Endpoint = (process.env.R2_ENDPOINT || process.env.AWS_ENDPOINT_URL_S3 || DEFAULT_R2_ENDPOINT).replace(/\/$/, '');
-  if (s3Endpoint) {
-    return `${s3Endpoint}/${bucketName}/${cleanKey}`;
-  }
-
-  return `/${cleanKey}`;
-}
+const DEFAULT_NEON_STORAGE_ENDPOINT = 'https://br-floral-tree-b35p9voh.storage.c-4.ap-southeast-1.aws.neon.tech';
 
 export function getS3Endpoint(): string {
-  return (process.env.R2_ENDPOINT || process.env.AWS_ENDPOINT_URL_S3 || DEFAULT_R2_ENDPOINT).replace(/\/$/, '');
+  return (process.env.AWS_ENDPOINT_URL_S3 || process.env.NEON_STORAGE_ENDPOINT || DEFAULT_NEON_STORAGE_ENDPOINT).replace(/\/$/, '');
 }
 
 /**
- * Upload an image to Cloudflare R2 Object Storage.
- * Prioritizes native Cloudflare Worker R2 binding (event.context.cloudflare.env.R2_BUCKET).
- * Falls back to S3-compatible API or local disk if running offline.
+ * Returns the public URL for an asset key in Neon Object Storage.
+ * Example: https://br-floral-tree-b35p9voh.storage.c-4.ap-southeast-1.aws.neon.tech/assets/images/uploads/Diagonal%20All%20Black.png
+ */
+export function getPublicStorageUrl(key: string = ''): string {
+  const cleanKey = key.replace(/^\/+/, '');
+  const baseBlogUrl = process.env.BLOG_URL ? process.env.BLOG_URL.replace(/\/$/, '') : '';
+  const baseUrl = baseBlogUrl && !baseBlogUrl.includes('localhost')
+    ? baseBlogUrl
+    : `${getS3Endpoint()}/${bucketName}`;
+
+  if (!cleanKey) {
+    return baseUrl;
+  }
+
+  return `${baseUrl}/${cleanKey}`;
+}
+
+async function sha256Hex(data: Uint8Array | string): Promise<string> {
+  const enc = new TextEncoder();
+  const buffer = typeof data === 'string' ? enc.encode(data) : data;
+  const digest = await crypto.subtle.digest('SHA-256', buffer as any);
+  return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function hmac(keyData: Uint8Array | string, msgData: Uint8Array | string): Promise<Uint8Array> {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw',
+    typeof keyData === 'string' ? enc.encode(keyData) : keyData,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  const signature = await crypto.subtle.sign(
+    'HMAC',
+    key,
+    typeof msgData === 'string' ? enc.encode(msgData) : msgData
+  );
+  return new Uint8Array(signature);
+}
+
+/**
+ * Upload an image directly to Neon Object Storage (assets bucket) using native AWS Signature V4.
+ * Fully compatible with Cloudflare Workers (V8 isolate) and Node.js with zero external dependencies.
  */
 export async function uploadImage(
   filename: string,
@@ -52,59 +66,64 @@ export async function uploadImage(
   const timestamp = Date.now();
   const targetKey = `images/uploads/${timestamp}_${cleanFilename}`;
 
-  // 1. Cloudflare Native R2 Binding (Pages / Workers environment)
-  const cloudflareEnv = (event?.context?.cloudflare as any)?.env;
-  const r2Bucket = cloudflareEnv?.R2_BUCKET;
-
-  if (r2Bucket && typeof r2Bucket.put === 'function') {
-    await r2Bucket.put(targetKey, buffer, {
-      httpMetadata: {
-        contentType,
-        cacheControl: 'public, max-age=31536000, immutable',
-      },
-    });
-
-    return {
-      key: targetKey,
-      filename: `${timestamp}_${cleanFilename}`,
-      url: getPublicStorageUrl(targetKey),
-      storage: 'cloudflare-r2-native',
-    };
-  }
-
-  // 2. Cloudflare R2 via S3-compatible API (if credentials configured)
-  const accessKey = process.env.R2_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID;
-  const secretKey = process.env.R2_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY;
-  const endpoint = process.env.R2_ENDPOINT || process.env.AWS_ENDPOINT_URL_S3;
+  const accessKey = process.env.AWS_ACCESS_KEY_ID;
+  const secretKey = process.env.AWS_SECRET_ACCESS_KEY;
+  const endpoint = getS3Endpoint();
+  const region = process.env.AWS_REGION || 'ap-southeast-1';
 
   if (accessKey && secretKey && endpoint) {
-    const { S3Client, PutObjectCommand } = await import('@aws-sdk/client-s3');
-    const s3 = new S3Client({
-      region: 'auto',
-      endpoint,
-      credentials: {
-        accessKeyId: accessKey,
-        secretAccessKey: secretKey,
+    const url = new URL(`${endpoint}/${bucketName}/${targetKey}`);
+    const now = new Date();
+    const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, '');
+    const dateStamp = amzDate.slice(0, 8);
+
+    const payloadHash = await sha256Hex(buffer);
+
+    const canonicalHeaders = `host:${url.host}\nx-amz-content-sha256:${payloadHash}\nx-amz-date:${amzDate}\n`;
+    const signedHeaders = 'host;x-amz-content-sha256;x-amz-date';
+
+    const canonicalUri = '/' + [bucketName, ...targetKey.split('/')].map(encodeURIComponent).join('/');
+    const canonicalRequest = `PUT\n${canonicalUri}\n\n${canonicalHeaders}\n${signedHeaders}\n${payloadHash}`;
+
+    const credentialScope = `${dateStamp}/${region}/s3/aws4_request`;
+    const stringToSign = `AWS4-HMAC-SHA256\n${amzDate}\n${credentialScope}\n${await sha256Hex(canonicalRequest)}`;
+
+    const kDate = await hmac('AWS4' + secretKey, dateStamp);
+    const kRegion = await hmac(kDate, region);
+    const kService = await hmac(kRegion, 's3');
+    const kSigning = await hmac(kService, 'aws4_request');
+    const signatureBytes = await hmac(kSigning, stringToSign);
+    const signature = Array.from(signatureBytes).map(b => b.toString(16).padStart(2, '0')).join('');
+
+    const authHeader = `AWS4-HMAC-SHA256 Credential=${accessKey}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
+
+    const res = await fetch(url.toString(), {
+      method: 'PUT',
+      headers: {
+        'host': url.host,
+        'x-amz-date': amzDate,
+        'x-amz-content-sha256': payloadHash,
+        'Authorization': authHeader,
+        'Content-Type': contentType,
       },
-      forcePathStyle: true,
+      body: buffer as any,
     });
 
-    await s3.send(new PutObjectCommand({
-      Bucket: bucketName,
-      Key: targetKey,
-      Body: buffer,
-      ContentType: contentType,
-    }));
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error(`Neon S3 Upload Failed (${res.status} ${res.statusText}):`, errText);
+      throw new Error(`Upload to Neon storage failed: ${res.statusText} (${res.status})`);
+    }
 
     return {
       key: targetKey,
       filename: `${timestamp}_${cleanFilename}`,
       url: getPublicStorageUrl(targetKey),
-      storage: 'cloudflare-r2-s3',
+      storage: 'neon-s3',
     };
   }
 
-  // 3. Local filesystem fallback for dev server (when running without R2 credentials)
+  // Local filesystem fallback for dev server without credentials
   try {
     const uploadDir = path.join(process.cwd(), 'public/images/uploads');
     if (!fs.existsSync(uploadDir)) {
@@ -129,5 +148,4 @@ export async function uploadImage(
   };
 }
 
-// Backward-compatible alias
 export const uploadImageToNeon = uploadImage;
