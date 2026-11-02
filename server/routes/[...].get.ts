@@ -6,8 +6,17 @@ import { renderTemplate, blogNavContent } from '../utils/renderer';
 export default defineEventHandler(async (event) => {
   const urlPath = event.path.split('?')[0];
 
-  // Skip static assets or API routes if any slip through
-  if (urlPath.startsWith('/api/') || urlPath.startsWith('/admin')) {
+  // Never serve HTML for static assets, API, or admin routes
+  if (
+    urlPath.startsWith('/api/') ||
+    urlPath.startsWith('/admin') ||
+    urlPath.startsWith('/js/') ||
+    urlPath.startsWith('/css/') ||
+    urlPath.startsWith('/img/') ||
+    urlPath.startsWith('/fonts/') ||
+    urlPath.startsWith('/scss/') ||
+    urlPath.match(/\.(js|css|png|jpg|jpeg|gif|webp|svg|ico|woff2?|ttf|eot|map|json|txt|xml)$/i)
+  ) {
     return;
   }
 
