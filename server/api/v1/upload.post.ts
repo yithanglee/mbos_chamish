@@ -22,12 +22,14 @@ export default defineEventHandler(async (event) => {
     const filename = fileField.filename || `upload_${Date.now()}.jpg`;
     const mime = fileField.type || 'image/jpeg';
 
-    const result = await uploadImage(filename, fileField.data, mime, event);
+    const requireNeon = formData.some(field => field.name === 'requireNeon' && field.data.toString() === 'true');
+    const result = await uploadImage(filename, fileField.data, mime, event, requireNeon);
     return {
       success: true,
       url: result.url,
       key: result.key,
       filename: result.filename,
+      storage: result.storage,
     };
   }
 

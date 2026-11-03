@@ -9,6 +9,8 @@ export default defineEventHandler(async (event) => {
 
   setResponseHeader(event, 'content-type', 'text/html; charset=utf-8');
 
+  const homepageEnabled = process.env.HOMEPAGE_CMS_ENABLED === 'true' && Boolean(process.env.ADMIN_API_KEY);
+
   return `<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
@@ -573,6 +575,7 @@ export default defineEventHandler(async (event) => {
       <button class="tab-btn active" onclick="switchTab('products')">&#128083; Products</button>
       <button class="tab-btn" onclick="switchTab('banners')">&#128444; Banners & Carousel</button>
       <button class="tab-btn" onclick="switchTab('sections')">&#9998; Website Content</button>
+      <button class="tab-btn" onclick="switchTab('homepage')">Homepage HTML</button>
       <button class="tab-btn" onclick="switchTab('ai')">&#129302; AI Agent Integrations</button>
     </div>
 
@@ -675,6 +678,29 @@ export default defineEventHandler(async (event) => {
             <tr><td colspan="5" style="text-align: center; padding: 2rem;">Loading website content sections...</td></tr>
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <div id="tab-homepage" class="tab-content">
+      <h2>Homepage HTML</h2>
+      <p>Enter a complete HTML document with its own page title and description.</p>
+      <p ${homepageEnabled ? 'hidden' : ''}>Homepage publishing is disabled. Apply the homepage migration and configure HOMEPAGE_CMS_ENABLED and ADMIN_API_KEY to use revision history.</p>
+      <div ${homepageEnabled ? '' : 'hidden'}>
+      <form id="homepageForm">
+        <label class="field-label" for="homepageSource">HTML source</label>
+        <textarea id="homepageSource" class="input-field" rows="14" required maxlength="2000000"></textarea>
+        <button class="btn btn-primary" type="submit">Save Draft and Preview</button>
+      </form>
+      <h3>Revision History</h3>
+      <div class="products-table-container">
+        <table>
+          <thead><tr><th>Revision</th><th>Saved</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="homepageRevisions"></tbody>
+        </table>
+      </div>
+      <button class="btn btn-outline" type="button" onclick="runHomepageAction('restore-default')">Restore Built-in Homepage</button>
+      <p id="homepageStatus" role="status"></p>
+      <iframe id="homepagePreview" title="Homepage preview" sandbox referrerpolicy="no-referrer" style="width: 100%; height: 540px; background: white;" hidden></iframe>
       </div>
     </div>
 
@@ -897,6 +923,78 @@ export default defineEventHandler(async (event) => {
     </div>
   </div>
 
+  <div id="bannerModal" class="modal-backdrop">
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="bannerModalTitle">
+      <div class="modal-header">
+        <h3 class="modal-title" id="bannerModalTitle">Add New Banner</h3>
+        <button type="button" class="modal-close" aria-label="Close" onclick="closeBannerModal()">&times;</button>
+      </div>
+      <form id="bannerForm">
+        <div class="form-grid">
+          <label class="form-full field-label">
+            Image URL or asset key
+            <input class="input-field" style="width: 100%;" id="bannerImage" name="img_url">
+          </label>
+          <label class="form-full field-label">
+            Or upload an image *
+            <input type="file" name="image_file" accept="image/*">
+          </label>
+          <label class="form-full field-label">
+            Mobile image URL or asset key
+            <input class="input-field" style="width: 100%;" name="mobile_img_url">
+          </label>
+          <label class="form-full field-label">
+            Or upload a mobile image
+            <input type="file" name="mobile_image_file" accept="image/*">
+          </label>
+          <p class="form-full" id="bannerUploadStatus" role="status"></p>
+          <label class="field-label">
+            Display order
+            <input class="input-field" style="width: 100%;" type="number" name="order" value="0">
+          </label>
+          <label class="field-label">
+            Remarks
+            <input class="input-field" style="width: 100%;" name="remarks">
+          </label>
+          <label class="field-label">
+            <input type="checkbox" name="is_show" checked> Visible
+          </label>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-outline" onclick="closeBannerModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Banner</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="sectionModal" class="modal-backdrop">
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="sectionModalTitle">
+      <div class="modal-header">
+        <h3 class="modal-title" id="sectionModalTitle">Edit Section</h3>
+        <button type="button" class="modal-close" aria-label="Close" onclick="closeSectionModal()">&times;</button>
+      </div>
+      <form id="sectionForm">
+        <input type="hidden" id="sectionId">
+        <div class="form-grid">
+          <label class="form-full field-label">
+            Plain Content 1 (Phone / Address)
+            <textarea id="sectionContent1" class="input-field"></textarea>
+          </label>
+          <label class="form-full field-label">
+            Plain Content 2 (WhatsApp / Hours)
+            <textarea id="sectionContent2" class="input-field"></textarea>
+          </label>
+        </div>
+        <p id="sectionSaveError" role="alert" hidden></p>
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-outline" onclick="closeSectionModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveSectionBtn">Save Section</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     let allProducts = [];
     let allCategories = [];
@@ -962,6 +1060,7 @@ export default defineEventHandler(async (event) => {
       document.getElementById('tab-' + name).classList.add('active');
 
       if (name === 'banners') loadBanners();
+      if (name === 'homepage' && ${homepageEnabled}) runHomepageAction();
       if (name === 'sections') loadSections();
     }
 
@@ -1264,6 +1363,78 @@ export default defineEventHandler(async (event) => {
     }
 
     // --- BANNERS TAB ---
+    const bannerForm = document.getElementById('bannerForm');
+
+    function openBannerModal() {
+      document.getElementById('bannerModal').classList.add('open');
+      document.getElementById('bannerImage').focus();
+    }
+
+    function closeBannerModal() {
+      document.getElementById('bannerModal').classList.remove('open');
+      bannerForm.reset();
+      document.getElementById('bannerUploadStatus').textContent = '';
+    }
+
+    bannerForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const saveButton = bannerForm.querySelector('button[type="submit"]');
+      if (saveButton.disabled) return;
+
+      const fields = new FormData(bannerForm);
+      const image = fields.get('img_url').trim();
+      if (!image && !fields.get('image_file').size) {
+        alert('Select an image or enter an image URL or asset key.');
+        return;
+      }
+
+      saveButton.disabled = true;
+      const status = document.getElementById('bannerUploadStatus');
+      try {
+        for (const [fileField, urlField] of [
+          ['image_file', 'img_url'],
+          ['mobile_image_file', 'mobile_img_url'],
+        ]) {
+          const file = fields.get(fileField);
+          if (!file.size) continue;
+          status.textContent = 'Uploading ' + file.name + ' to Neon Object Storage…';
+          const upload = new FormData();
+          upload.append('file', file);
+          upload.append('requireNeon', 'true');
+          const response = await fetch('/api/v1/upload', { method: 'POST', body: upload });
+          const result = await response.json();
+          if (!response.ok || !result.success || result.storage !== 'neon-s3') {
+            throw new Error(result.statusMessage || 'Neon did not confirm the upload');
+          }
+          fields.set(urlField, result.url);
+          bannerForm.elements[urlField].value = result.url;
+          bannerForm.elements[fileField].value = '';
+        }
+        status.textContent = 'Saving banner…';
+        const res = await fetch('/api/v1/banners', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            img_url: fields.get('img_url').trim(),
+            mobile_img_url: fields.get('mobile_img_url').trim() || null,
+            order: Number(fields.get('order')),
+            remarks: fields.get('remarks').trim() || null,
+            is_show: fields.has('is_show'),
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.statusMessage || 'Request failed');
+        }
+        closeBannerModal();
+        await loadBanners();
+      } catch (err) {
+        status.textContent = 'Failed to save banner: ' + err.message;
+      } finally {
+        saveButton.disabled = false;
+      }
+    });
+
     async function loadBanners() {
       try {
         const res = await fetch('/api/v1/banners');
@@ -1301,20 +1472,22 @@ export default defineEventHandler(async (event) => {
     }
 
     // --- SECTIONS TAB ---
+    let storefrontSections = [];
     async function loadSections() {
       try {
         const res = await fetch('/api/v1/sections');
-        const sections = await res.json();
+        if (!res.ok) throw new Error('Could not load sections');
+        storefrontSections = await res.json();
         const tbody = document.getElementById('sectionsTableBody');
 
-        tbody.innerHTML = sections.map(s => \`
+        tbody.innerHTML = storefrontSections.map(s => \`
           <tr>
             <td><span class="badge-pill">#\${s.id}</span></td>
             <td><strong style="color: var(--text-heading);">\${escapeHtml(s.name)}</strong></td>
             <td>\${escapeHtml(s.plain_content1 || '-')}</td>
             <td>\${escapeHtml(s.plain_content2 || '-')}</td>
             <td style="text-align: right;">
-              <button class="btn btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;" onclick="promptEditSection(\${s.id}, '\${escapeHtml(s.plain_content1 || '')}', '\${escapeHtml(s.plain_content2 || '')}')">Edit</button>
+              <button class="btn btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;" onclick="openSectionModal(\${s.id})">Edit</button>
             </td>
           </tr>
         \`).join('');
@@ -1323,18 +1496,139 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    async function promptEditSection(id, val1, val2) {
-      const p1 = prompt('Enter Phone or Text 1:', val1);
-      if (p1 === null) return;
-      const p2 = prompt('Enter WhatsApp Link or Text 2:', val2);
-      if (p2 === null) return;
+    const sectionModal = document.getElementById('sectionModal');
+    const sectionSaveError = document.getElementById('sectionSaveError');
+    const saveSectionBtn = document.getElementById('saveSectionBtn');
+    let sectionEditButton;
 
-      await fetch(\`/api/v1/sections/\${id}\`, {
-        method: 'PUT',
+    function openSectionModal(id) {
+      const section = storefrontSections.find(section => Number(section.id) === id);
+      if (!section) return;
+
+      sectionEditButton = document.activeElement;
+      document.getElementById('sectionModalTitle').textContent = 'Edit ' + section.name;
+      document.getElementById('sectionId').value = section.id;
+      const content1 = document.getElementById('sectionContent1');
+      content1.value = section.plain_content1 ?? '';
+      document.getElementById('sectionContent2').value = section.plain_content2 ?? '';
+      sectionSaveError.hidden = true;
+      sectionModal.classList.add('open');
+      content1.focus();
+    }
+
+    function closeSectionModal() {
+      if (saveSectionBtn.disabled) return;
+      sectionModal.classList.remove('open');
+      sectionEditButton?.focus();
+    }
+
+    sectionModal.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeSectionModal();
+    });
+
+    document.getElementById('sectionForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (saveSectionBtn.disabled) return;
+
+      saveSectionBtn.disabled = true;
+      sectionSaveError.hidden = true;
+      try {
+        const id = document.getElementById('sectionId').value;
+        const res = await fetch('/api/v1/sections/' + encodeURIComponent(id), {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            plain_content1: document.getElementById('sectionContent1').value,
+            plain_content2: document.getElementById('sectionContent2').value,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.statusMessage || 'Request failed');
+        }
+        sectionModal.classList.remove('open');
+        await loadSections();
+      } catch (err) {
+        sectionSaveError.textContent = 'Failed to save section: ' + err.message;
+        sectionSaveError.hidden = false;
+      } finally {
+        saveSectionBtn.disabled = false;
+      }
+    });
+
+    const homepageRevisions = document.getElementById('homepageRevisions');
+    const homepageStatus = document.getElementById('homepageStatus');
+    const homepageSource = document.getElementById('homepageSource');
+    const homepagePreview = document.getElementById('homepagePreview');
+    let homepageBusy = false;
+
+    document.getElementById('homepageForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      runHomepageAction('draft');
+    });
+
+    async function homepageRequest(payload) {
+      const response = await fetch('/api/v1/homepage', payload ? {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plain_content1: p1, plain_content2: p2 })
-      });
-      loadSections();
+        body: JSON.stringify(payload),
+      } : undefined);
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.statusMessage || 'Homepage request failed');
+      return result;
+    }
+
+    async function runHomepageAction(action, id) {
+      if (homepageBusy) return;
+      if ((action === 'publish' || action === 'preview') && !id) return;
+      if (action === 'publish' && !confirm('Publish homepage revision #' + id + '?')) return;
+      if (action === 'restore-default' && !confirm('Restore the built-in homepage?')) return;
+
+      homepageBusy = true;
+      homepageStatus.textContent = 'Working…';
+      try {
+        if (action) {
+          const result = await homepageRequest(action === 'draft' ? { action, html: homepageSource.value } : { action, id });
+          if (action === 'draft' || action === 'preview') {
+            id = result.id;
+            homepagePreview.srcdoc = result.html;
+            homepagePreview.hidden = false;
+          }
+          if (action === 'preview') {
+            homepageSource.value = result.html;
+          }
+        }
+        const { revisions, publishedId } = await homepageRequest();
+        homepageRevisions.replaceChildren();
+        if (!revisions.length) {
+          const cell = homepageRevisions.insertRow().insertCell();
+          cell.colSpan = 4;
+          cell.textContent = 'No saved revisions yet.';
+        }
+        for (const revision of revisions) {
+          const live = revision.id === publishedId;
+          const row = homepageRevisions.insertRow();
+          row.insertCell().textContent = '#' + revision.id;
+          row.insertCell().textContent = new Date(revision.created_at).toLocaleString();
+          row.insertCell().textContent = live ? 'Live' : 'Saved';
+          const actions = row.insertCell();
+          for (const [action, label] of [['preview', 'Preview'], ['publish', 'Publish']]) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'btn btn-outline';
+            button.textContent = label;
+            button.disabled = action === 'publish' && live;
+            button.addEventListener('click', () => runHomepageAction(action, revision.id));
+            actions.append(button);
+          }
+        }
+        homepageStatus.textContent = publishedId ? 'Live revision #' + publishedId : 'Built-in homepage is live';
+        if (action === 'draft') homepageStatus.textContent += '. Saved draft #' + id;
+      } catch (err) {
+        homepageStatus.textContent = err.message;
+      } finally {
+        homepageBusy = false;
+      }
     }
 
     async function logout() {

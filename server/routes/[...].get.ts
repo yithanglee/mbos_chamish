@@ -1,3 +1,4 @@
+import { getPublishedHomepage } from '../utils/homepage';
 import { defineEventHandler, getQuery, setResponseHeader } from 'h3';
 import { getProducts, getProductById, getSections, getBanners, getPageByRoute } from '../utils/db';
 import { getPublicStorageUrl, getS3Endpoint, bucketName } from '../utils/storage';
@@ -22,6 +23,11 @@ export default defineEventHandler(async (event) => {
   }
 
   setResponseHeader(event, 'content-type', 'text/html; charset=utf-8');
+
+  if (process.env.HOMEPAGE_CMS_ENABLED === 'true' && (urlPath === '/' || urlPath === '/home')) {
+    const html = await getPublishedHomepage();
+    if (html) return html;
+  }
 
   const assetsUrl = getPublicStorageUrl('');
   const query = getQuery(event);

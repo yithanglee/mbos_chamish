@@ -1,4 +1,4 @@
-import type { H3Event } from 'h3';
+import { createError, type H3Event } from 'h3';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -60,7 +60,8 @@ export async function uploadImage(
   filename: string,
   buffer: Uint8Array | Buffer,
   contentType = 'image/jpeg',
-  event?: H3Event
+  event?: H3Event,
+  requireNeon = false
 ) {
   const cleanFilename = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
   const timestamp = Date.now();
@@ -121,6 +122,10 @@ export async function uploadImage(
       url: getPublicStorageUrl(targetKey),
       storage: 'neon-s3',
     };
+  }
+
+  if (requireNeon) {
+    throw createError({ statusCode: 503, statusMessage: 'Neon Object Storage credentials are missing' });
   }
 
   // Local filesystem fallback for dev server without credentials
