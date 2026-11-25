@@ -1,4 +1,5 @@
 import { neon } from '@neondatabase/serverless';
+import { createRequire } from 'node:module';
 
 let pgPool: any = null;
 
@@ -12,8 +13,8 @@ function getDatabaseUrl(): string {
 
 function getPgSql(url: string) {
   if (!pgPool) {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { Pool } = require('pg');
+    const nodeRequire = createRequire(import.meta.url);
+    const { Pool } = nodeRequire('pg');
     pgPool = new Pool({
       connectionString: url,
       max: 10,
