@@ -1397,17 +1397,17 @@ export default defineEventHandler(async (event) => {
         ]) {
           const file = fields.get(fileField);
           if (!file.size) continue;
-          status.textContent = 'Uploading ' + file.name + ' to Neon Object Storage…';
+          status.textContent = 'Uploading ' + file.name + '…';
           const upload = new FormData();
           upload.append('file', file);
-          upload.append('requireNeon', 'true');
           const response = await fetch('/api/v1/upload', { method: 'POST', body: upload });
           const result = await response.json();
-          if (!response.ok || !result.success || result.storage !== 'neon-s3') {
-            throw new Error(result.statusMessage || 'Neon did not confirm the upload');
+          if (!response.ok || !result.success) {
+            throw new Error(result.statusMessage || 'Upload failed');
           }
-          fields.set(urlField, result.url);
-          bannerForm.elements[urlField].value = result.url;
+          const bannerUrl = result.url || ('/' + result.key);
+          fields.set(urlField, bannerUrl);
+          bannerForm.elements[urlField].value = bannerUrl;
           bannerForm.elements[fileField].value = '';
         }
         status.textContent = 'Saving banner…';

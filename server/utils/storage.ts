@@ -124,7 +124,7 @@ export async function uploadImage(
     };
   }
 
-  if (requireNeon) {
+  if (requireNeon && process.env.STRICT_NEON_STORAGE === 'true') {
     throw createError({ statusCode: 503, statusMessage: 'Neon Object Storage credentials are missing' });
   }
 
