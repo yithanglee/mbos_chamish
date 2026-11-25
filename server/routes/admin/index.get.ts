@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
 
   setResponseHeader(event, 'content-type', 'text/html; charset=utf-8');
 
-  const homepageEnabled = process.env.HOMEPAGE_CMS_ENABLED === 'true' && Boolean(process.env.ADMIN_API_KEY);
+  const homepageEnabled = process.env.HOMEPAGE_CMS_ENABLED === 'true' && Boolean(process.env.ADMIN_API_KEY || process.env.ADMIN_PASSWORD);
 
   return `<!DOCTYPE html>
 <html lang="en" data-theme="dark">

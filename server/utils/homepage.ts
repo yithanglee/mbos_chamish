@@ -12,7 +12,7 @@ export async function getPublishedHomepage() {
 }
 
 export function requireHomepageCms() {
-  if (process.env.HOMEPAGE_CMS_ENABLED !== 'true' || !process.env.ADMIN_API_KEY) {
+  if (process.env.HOMEPAGE_CMS_ENABLED !== 'true' || !(process.env.ADMIN_API_KEY || process.env.ADMIN_PASSWORD)) {
     throw createError({ statusCode: 404, statusMessage: 'Homepage CMS is disabled' });
   }
 }
