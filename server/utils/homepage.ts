@@ -143,6 +143,7 @@ export async function manageHomepageRevision(body: { action?: string; html?: unk
       const [page] = await sql`SELECT id FROM pages WHERE route_name = ${route} OR route_name = ${cleanRoute} LIMIT 1`;
       if (page?.id) {
         await sql`DELETE FROM page_publication WHERE page_id = ${page.id}`;
+        await sql`UPDATE pages SET content = NULL, updated_at = NOW() WHERE id = ${page.id}`;
       }
       return { publishedId: null, page: route };
     }

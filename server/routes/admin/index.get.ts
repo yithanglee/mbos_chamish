@@ -1609,6 +1609,11 @@ export default defineEventHandler(async (event) => {
           if (action === 'preview') {
             homepageSource.value = result.html;
           }
+          if (action === 'restore-default') {
+            homepagePreview.hidden = true;
+            homepagePreview.srcdoc = '';
+            homepageSource.value = '';
+          }
         }
         const { revisions, publishedId, page } = await homepageRequest();
         homepageRevisions.replaceChildren();
