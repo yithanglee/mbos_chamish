@@ -9,8 +9,8 @@ export interface AuthContext {
   role: 'admin';
 }
 
-function getExpectedApiKey(): string {
-  return process.env.ADMIN_API_KEY || process.env.ADMIN_SECRET || 'mbos_ai_agent_secret_key';
+function getExpectedApiKey(): string | undefined {
+  return process.env.ADMIN_PASSWORD || process.env.ADMIN_API_KEY || process.env.ADMIN_SECRET;
 }
 
 export async function verifyAuth(event: H3Event): Promise<AuthContext | null> {

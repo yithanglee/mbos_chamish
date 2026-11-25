@@ -3,7 +3,7 @@
   "version": "0.0.2",
   "private": true,
   "scripts": {
-    "build": "node scripts/build-templates.js && nitro build",
+    "build": "node scripts/build-templates.js && esbuild scripts/oauth-resume.js --bundle --minify --format=esm --outfile=public/oauth-resume.js && nitro build",
     "build:templates": "node scripts/build-templates.js",
     "build:legacy": "node scripts/build-templates.js && node esbuild.config.js && node scripts/build-worker.js",
     "start": "PORT=5101 node ./bin/www",
@@ -16,6 +16,7 @@
     "@aws-sdk/client-s3": "^3.1152.0",
     "@neon/config": "^1.9.2",
     "@neon/env": "^1.6.3",
+    "@neondatabase/auth": "0.7.0-beta",
     "@neondatabase/serverless": "^1.2.0",
     "axios": "^1.7.7",
     "body-parser": "^1.20.3",
@@ -31,6 +32,7 @@
     "iconv-lite": "^0.7.3",
     "morgan": "~1.9.1",
     "nodemailer": "^6.9.15",
+    "pg": "^8.23.1",
     "sitemap": "^8.0.0"
   },
   "devDependencies": {

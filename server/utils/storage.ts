@@ -130,7 +130,7 @@ export async function uploadImage(
 
   // Local filesystem fallback for dev server without credentials
   try {
-    const uploadDir = path.join(process.cwd(), 'public/images/uploads');
+    const uploadDir = process.env.UPLOADS_DIR || path.join(process.cwd(), 'data/uploads');
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
@@ -138,7 +138,7 @@ export async function uploadImage(
     return {
       key: targetKey,
       filename: `${timestamp}_${cleanFilename}`,
-      url: `/${targetKey}`,
+      url: `/images/uploads/${timestamp}_${cleanFilename}`,
       storage: 'local-filesystem',
     };
   } catch (err) {

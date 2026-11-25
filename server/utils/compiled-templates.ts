@@ -2,8 +2,8 @@
 // Precompiled at build-time for Cloudflare Workers (zero runtime eval / zero with-statement)
 
 export const rawBlogNavContent: string = "<!-- Header -->\n<header class=\"header chasmishco_header\">\n    <div class=\"container\">\n        <div class=\"row align-items-center\">\n            <div class=\"col-xl-3 col-lg-2 col-4\">\n                <div class=\"logo\">\n                    <a class=\"navi\" href=\"/home\">\n                        <img src=\"/img/logo/logo1.png\" alt=\"chasmishco Logo\">\n                    </a>\n                </div>\n            </div>\n            <div class=\"col-xl-9 col-lg-10 col-8 position-relative\">\n                <div class=\"header_right_sidebar\">\n                    <div class=\"login_account\">\n                        <div class=\"account\">\n                            <ul>\n                                <li>\n                                    <a href=\"https://wa.me/60193807061?text=Hello%20there!\">\n                                        <img src=\"/img/wa150.png\" style=\"width: 24px;\"> +6019-380 7061 | +6011-6316 9899\n                                    </a>\n                                </li>\n                            </ul>\n                        </div>\n                    </div>\n                    <div class=\"glass_toggle_menu\">\n                        <nav class=\"mainmenu_nav mainmenu__nav\">\n                            <ul class=\"main_menu\">\n                                <li>\n                                    <a class=\"navi\" href=\"/home\">Home</a>\n                                </li>\n                                <li class=\"d-none\">\n        <a href=\"/products_rx\" class=\"navi\">Prescription Glasses</a>\n      </li><li class=\"d-none\">\n        <a href=\"/products_safety_spectacles\" class=\"navi\">Safety Spectacles</a>\n      </li><li class=\"d-none\">\n        <a href=\"/return_refund_policy\" class=\"navi\">Return Refund Policy</a>\n      </li><li class=\"d-none\">\n        <a href=\"/privacy_policy\" class=\"navi\">Privacy Policy</a>\n      </li><li class=\"d-none\">\n        <a href=\"/terms_of_service\" class=\"navi\">Terms of Service</a>\n      </li><li>\n        <a href=\"/contact\" class=\"navi\">Contact Us</a>\n      </li><li>\n        <a href=\"/certifications\" class=\"navi\">Certifications</a>\n      </li><li>\n        <a href=\"/products\" class=\"navi\">Products</a>\n      </li><li>\n        <a href=\"/about_us\" class=\"navi\">About Us</a>\n      </li>\n                            </ul>\n                        </nav>\n                        <div class=\"hamburger-box button mobile-toggle\">\n                            <span class=\"mobile-toggle__icon\"></span>\n                        </div>\n                    </div>\n                    <div class=\"mobile-menu-toggle d-lg-none\">\n                        <button class=\"menu-toggle\">\n                            <span></span>\n                            <span></span>\n                            <span></span>\n                        </button>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </div>\n</header>\n\n<!-- Mobile Menu Start -->\n<div class=\"mobile-menu mobile-menu-items\">\n    <div class=\"mobile-menu-close\">\n        <button class=\"close-toggle\">\n            <span></span>\n            <span></span>\n        </button>\n    </div>\n    <ul class=\"main_menu\">\n        <li>\n            <a class=\"navi\" href=\"/home\">Home</a>\n        </li>\n        <li class=\"d-none\">\n        <a href=\"/products_rx\" class=\"navi\">Prescription Glasses</a>\n      </li><li class=\"d-none\">\n        <a href=\"/products_safety_spectacles\" class=\"navi\">Safety Spectacles</a>\n      </li><li class=\"d-none\">\n        <a href=\"/return_refund_policy\" class=\"navi\">Return Refund Policy</a>\n      </li><li class=\"d-none\">\n        <a href=\"/privacy_policy\" class=\"navi\">Privacy Policy</a>\n      </li><li class=\"d-none\">\n        <a href=\"/terms_of_service\" class=\"navi\">Terms of Service</a>\n      </li><li>\n        <a href=\"/contact\" class=\"navi\">Contact Us</a>\n      </li><li>\n        <a href=\"/certifications\" class=\"navi\">Certifications</a>\n      </li><li>\n        <a href=\"/products\" class=\"navi\">Products</a>\n      </li><li>\n        <a href=\"/about_us\" class=\"navi\">About Us</a>\n      </li>\n    </ul>\n</div>\n<div class=\"menu-overlay\"></div>\n<!-- Mobile Menu End -->\n<!-- Cart Overlay -->\n<div class=\"body_overlay\"></div>\n<!--// Header -->";
-export const buildNumber: string = "2026.11.03-9ba56fc";
-export const buildTime: string = "2026-11-03 05:04:08 UTC";
+export const buildNumber: string = "2026.11.25-b1def23";
+export const buildTime: string = "2026-11-25 11:09:00 UTC";
 
 export const compiledTemplates: Record<string, (locals: any) => string> = {
   "index": function anonymous(locals, escapeFn, include, rethrow
@@ -349,12 +349,20 @@ data = __locals.data,
   plano_products = __locals.plano_products,
   buildNumber = __locals.buildNumber,
   buildTime = __locals.buildTime;
-    ; __append("<style>\n  .bg_image--3 {\n    background-image: url(../img/bg/bg-image-3.webp);\n    background-repeat: repeat;\n    background-size: contain;\n    background-position: center center;\n  }\n\n  .slide::before {\n    position: absolute;\n    background: #000;\n    left: 0;\n    top: 0;\n    height: 100%;\n    width: 100%;\n    content: \"\";\n    z-index: -1;\n    opacity: 0;\n}\n</style>\n\n<!-- Start Slider Area -->\n<div class=\"slider_area slide_active  d-lg-none\">\n  ")
+    ; 
+  // Banner records can contain either storage keys or complete public URLs.
+  const bannerImageUrl = (value) => {
+    const image = (value || '').trim();
+    if (!image) return '';
+    return /^(https?:)?\/\//i.test(image)
+      ? image
+      : data.blogUrl.replace(/\/$/, '') + '/' + image.replace(/^\/+/, '');
+  };
+
+    ; __append("\n<style>\n  .bg_image--3 {\n    background-image: url(../img/bg/bg-image-3.webp);\n    background-repeat: repeat;\n    background-size: contain;\n    background-position: center center;\n  }\n\n  .slide::before {\n    position: absolute;\n    background: #000;\n    left: 0;\n    top: 0;\n    height: 100%;\n    width: 100%;\n    content: \"\";\n    z-index: -1;\n    opacity: 0;\n}\n</style>\n\n<!-- Start Slider Area -->\n<div class=\"slider_area slide_active  d-lg-none\">\n  ")
     ;  JSON.parse(data.banners).filter((v,i) => { return v.is_banner == false}).forEach(item=> { 
     ; __append("\n\n  <!-- Start Single Slide -->\n  <div class=\"slide slide_fixed_height d-flex align-items-center poss_relative animation__style01 \" style=\"\n            background-image: url('")
-    ; __append(escapeFn( data.blogUrl ))
-    ; __append("/")
-    ; __append(escapeFn( item.mobile_img_url))
+    ; __append(escapeFn( bannerImageUrl(item.mobile_img_url || item.img_url) ))
     ; __append("');\n                background-repeat: no-repeat;\n                height: 100%;\n                background-size: contain;\n                background-color: black;\n                background-position: center center;\n            \">\n    <div class=\"container\">\n      ")
     ;  if (item.content == null ) {
     ; __append("\n      <div class=\"row align-items-center\">\n        <div class=\"col-lg-12\">\n          <div class=\"slide_text\">\n            <h3>Unbelievable low prices</h3>\n            <h1>GLASSES FOR\n              <br> MEN & WOMEN\n            </h1>\n            <a href=\"#\">Buy Now</a>\n          </div>\n\n          <div class=\"rotate_titlE\">\n            <h2>GET UP TO\n              <span>65%</span> Off\n            </h2>\n          </div>\n        </div>\n      </div>\n      ")
@@ -370,9 +378,7 @@ data = __locals.data,
     ; __append("\n\n\n\n</div>\n\n\n<!-- End Slider Area -->\n<!-- Start Slider Area -->\n<div class=\"slider_area slide_active d-none d-lg-block\">\n  ")
     ;  JSON.parse(data.banners).filter((v,i) => { return v.is_banner == false}).forEach(item=> { 
     ; __append("\n\n  <!-- Start Single Slide -->\n  <div class=\"slide slide_fixed_height d-flex align-items-center poss_relative animation__style01 \" style=\"\n            background-image: url('")
-    ; __append(escapeFn( data.blogUrl ))
-    ; __append("/")
-    ; __append(escapeFn( item.img_url))
+    ; __append(escapeFn( bannerImageUrl(item.img_url) ))
     ; __append("');\n                background-repeat: no-repeat;\n                height: 100%;\n                background-size: contain;\n                background-position: center center;\n            \">\n    <div class=\"container\">\n      ")
     ;  if (item.content == null ) {
     ; __append("\n      <div class=\"row align-items-center\">\n        <div class=\"col-lg-12\">\n          <div class=\"slide_text\">\n            <h3>Unbelievable low prices</h3>\n            <h1>GLASSES FOR\n              <br> MEN & WOMEN\n            </h1>\n            <a href=\"#\">Buy Now</a>\n          </div>\n\n          <div class=\"rotate_titlE\">\n            <h2>GET UP TO\n              <span>65%</span> Off\n            </h2>\n          </div>\n        </div>\n      </div>\n      ")
@@ -420,17 +426,7 @@ data = __locals.data,
     ; __append(escapeFn( product.name ))
     ; __append("\n                </h4>\n              </div>\n            </div>\n          </a>\n        </div>\n      </div>\n      <!-- End Single Product -->\n      ")
     ;  }) 
-    ; __append("\n\n\n    </div>\n  </div>\n</div>\n<!-- End Product Area -->\n\n<!-- Start Banner Area 645 360 -->\n<div class=\"banner_area\">\n\n\n  <div class=\"row g-1 \">\n    ")
-    ;  JSON.parse(data.banners).filter((v,i) => { return v.is_banner == true}).forEach(item=> { 
-    ; __append("\n\n    <div class=\"")
-    ; __append(escapeFn( item.class_list ))
-    ; __append("\">\n      <div class=\"banner\" style=\"\n    width: 100%;\n    height: 80vh;\">\n        <div class=\"thumb\" style=\"\n      \n                background-image: url('")
-    ; __append(escapeFn( data.blogUrl ))
-    ; __append("/")
-    ; __append(escapeFn( item.img_url))
-    ; __append("');\n                background-size: contain;\n                background-repeat: no-repeat;\n                background-position: center;\n                height: 100%;\">\n\n\n\n        </div>\n      </div>\n    </div>\n    ")
-    ;  }) 
-    ; __append("\n\n  </div>\n</div>\n<!-- End Banner Area -->\n\n<!-- Start Product Area -->\n<div class=\"product_area section-pt-xl section-pb-xl bg-white\">\n  <div class=\"container\">\n    <div class=\"row\">\n      <div class=\"col-lg-12\">\n\n\n        ")
+    ; __append("\n\n\n    </div>\n  </div>\n</div>\n<!-- End Product Area -->\n\n<!-- Original MBOS CAT campaign banner -->\n<div class=\"banner_area\">\n  <div class=\"banner\">\n    <img src=\"/original-mbos-banner.jpg\"\n      alt=\"CAT protective eyewear — Don't let your guard down when it comes to eye protection\"\n      width=\"1233\" height=\"555\" loading=\"lazy\"\n      style=\"display: block; width: 100%; height: auto;\">\n  </div>\n</div>\n<!-- End Banner Area -->\n\n<!-- Start Product Area -->\n<div class=\"product_area section-pt-xl section-pb-xl bg-white\">\n  <div class=\"container\">\n    <div class=\"row\">\n      <div class=\"col-lg-12\">\n\n\n        ")
     ;  if (data.sections.filter((s,i)=> {return s.name == 'Second Product Section'}).length == 0) { 
     ; __append("\n        <div class=\"section_title text-center\">\n          <h2>PRESCRIPTION SAFETY GLASSES</h2>\n          <p>Eye are very important for thos whos have some difficult in their eye to see every\n            hing clearly and perfectly</p>\n        </div>\n\n        ")
     ;  } else { 

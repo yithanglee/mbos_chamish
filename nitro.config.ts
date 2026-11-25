@@ -8,7 +8,10 @@ export default defineNitroConfig({
   srcDir: 'server',
   preset: process.env.NITRO_PRESET || 'cloudflare-module',
   compatibilityDate: '2026-08-04',
-  ignore: ['legacy_express_routes/**', 'app.js', 'worker.js', 'bin/**'],
+  // Root HTML files are the purchased theme's demos, not customer pages.
+  // Exclude them so Cloudflare's clean-URL asset serving cannot shadow SSR.
+  // Keep html/v2 fragments used by the original navigation.
+  ignore: ['legacy_express_routes/**', 'app.js', 'worker.js', 'bin/**', '../public/*.html'],
   publicAssets: [
     {
       baseURL: '/',

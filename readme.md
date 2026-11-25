@@ -27,5 +27,9 @@ Send JSON to `POST /api/v1/homepage` with `X-API-Key` for these actions:
 | `publish` | `id` | Makes that revision live |
 | `restore-default` | | Restores the bundled homepage |
 
+MCP clients can use the `homepage` tool on `/api/mcp` with the same actions.
+Use `{"action":"list"}` to list revisions. A successful MCP `draft` returns
+the new revision ID. Use `preview` with that ID to retrieve the HTML.
+
 Grant access only to trusted authors and agents. Published HTML can include
 JavaScript that runs on the storefront origin.

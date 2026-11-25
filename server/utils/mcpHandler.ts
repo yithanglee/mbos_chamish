@@ -1,4 +1,5 @@
-import { H3Event, readBody, getHeader, getQuery, setResponseHeader, createError } from 'h3';
+import { manageStorefrontDesign } from './storefrontDesign';
+import { H3Event, readBody, getHeader, getQuery, setResponseHeader, setResponseStatus, createError } from 'h3';
 import {
   getProducts,
   getProductById,
@@ -18,7 +19,9 @@ import {
   deleteBanner,
 } from './db';
 import { uploadImage } from './storage';
+import { mcpOAuthConfig, mcpOAuthScopes } from './mcpOAuth';
 import { verifyAuth } from './auth';
+import { listHomepageRevisions, manageHomepageRevision } from './homepage';
 
 export const MCP_TOOLS = [
   {
@@ -179,6 +182,33 @@ export const MCP_TOOLS = [
     },
   },
   {
+    name: 'storefront_design',
+    securitySchemes: [{ type: 'oauth2', scopes: ['openid', 'email'] }],
+    description: 'Manage site-wide CSS revisions for the public storefront. Draft saves without publishing. Preview returns draft CSS for review. Publish applies a revision, including an older revision for rollback. Restore-default removes the override. For new media, ask the user to upload it in MBOS Admin → Banners & Carousel and provide the resulting hosted URL. Reference that URL in the stylesheet. Never upload objects through this tool or embed media as data URLs.',
+    inputSchema: {
+      type: 'object',
+      required: ['action'],
+      properties: {
+        action: { type: 'string', enum: ['list', 'draft', 'preview', 'publish', 'restore-default'] },
+        id: { type: 'integer', description: 'Revision ID for preview or publish' },
+        css: { type: 'string', description: 'Full CSS stylesheet for draft. Reference hosted media URLs from Banners & Carousel uploads.' },
+      },
+    },
+  },
+  {
+    name: 'homepage',
+    description: 'Manage homepage HTML revisions. Draft saves without publishing. Publish changes the live homepage and can roll back to an older revision. Restore-default switches to the built-in homepage.',
+    inputSchema: {
+      type: 'object',
+      required: ['action'],
+      properties: {
+        action: { type: 'string', enum: ['list', 'draft', 'preview', 'publish', 'restore-default'] },
+        html: { type: 'string', maxLength: 2000000, description: 'Complete HTML document, required for draft' },
+        id: { type: 'integer', minimum: 1, maximum: 2147483647, description: 'Revision ID, required for preview and publish' },
+      },
+    },
+  },
+  {
     name: 'list_pages',
     description: 'List all dynamic website pages stored in Neon Database',
     inputSchema: {
@@ -333,6 +363,15 @@ async function executeTool(name: string, args: any, event: H3Event): Promise<any
       return { success: true, section: updated };
     }
 
+    case 'storefront_design': return manageStorefrontDesign(args);
+
+    case 'homepage': {
+      if (args.action === 'list') return listHomepageRevisions();
+      const result = await manageHomepageRevision(args);
+      if (args.action === 'draft' && 'id' in result) return { id: result.id };
+      return result;
+    }
+
     case 'list_pages': {
       return await getPages();
     }
@@ -363,8 +402,8 @@ async function executeTool(name: string, args: any, event: H3Event): Promise<any
 export async function handleMcpRequest(event: H3Event) {
   // Always attach CORS headers for cross-origin ChatGPT and MCP client support
   setResponseHeader(event, 'Access-Control-Allow-Origin', '*');
-  setResponseHeader(event, 'Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
-  setResponseHeader(event, 'Access-Control-Allow-Headers', 'Content-Type, Authorization, X-API-Key, x-api-key, Accept, mcp-session-id, X-Requested-With');
+  setResponseHeader(event, 'Access-Control-Allow-Methods', 'POST, OPTIONS');
+  setResponseHeader(event, 'Access-Control-Allow-Headers', 'Content-Type, Authorization, X-API-Key, x-api-key, Accept, mcp-session-id, MCP-Protocol-Version, X-Requested-With');
   setResponseHeader(event, 'Access-Control-Max-Age', '86400');
 
   // Handle preflight OPTIONS immediately
@@ -372,59 +411,42 @@ export async function handleMcpRequest(event: H3Event) {
     return '';
   }
 
-  // Handle GET discovery
-  if (event.method === 'GET') {
-    setResponseHeader(event, 'Content-Type', 'application/json; charset=utf-8');
-    return {
-      mcpVersion: '2024-11-05',
-      name: 'mbos-store-mcp',
-      description: 'Model Context Protocol (MCP) Server for MBOS Chamish Storefront & Neon Storage',
-      endpoints: {
-        mcp: '/api/mcp',
-        sse: '/api/sse',
-        legacy_mcp: '/mcp',
-        legacy_sse: '/sse',
-        openapi: '/api/ai/openapi',
-      },
-      toolsCount: MCP_TOOLS.length,
-      tools: MCP_TOOLS,
-    };
+  if (event.method !== 'POST') {
+    setResponseHeader(event, 'Allow', 'POST, OPTIONS');
+    throw createError({ statusCode: 405 });
   }
-
-  // Verify Auth for JSON-RPC requests
-  const query = getQuery(event);
-  const providedKey =
-    getHeader(event, 'x-api-key') ||
-    getHeader(event, 'X-API-Key') ||
-    getHeader(event, 'authorization')?.replace(/^Bearer\s+/i, '') ||
-    (query.api_key as string) ||
-    (query.apiKey as string);
-
-  const expectedKey = process.env.ADMIN_API_KEY || process.env.ADMIN_SECRET || 'mbos_ai_agent_secret_key';
 
   const body = await readBody(event).catch(() => null);
-  if (!body) {
-    throw createError({ statusCode: 400, statusMessage: 'JSON-RPC body required' });
+  if (body?.jsonrpc !== '2.0' || typeof body.method !== 'string') {
+    setResponseStatus(event, 400);
+    return { jsonrpc: '2.0', id: null, error: { code: -32600, message: 'Invalid JSON-RPC request' } };
   }
 
-  const { jsonrpc, id, method, params } = body;
-  setResponseHeader(event, 'Content-Type', 'application/json; charset=utf-8');
+  const { id, method, params } = body;
+  if (id === undefined) {
+    setResponseStatus(event, 202);
+    return;
+  }
 
-  // Allow "initialize" and "ping" without strict auth if clients perform handshake probe first,
-  // but protect tools and mutations:
-  const isProbe = method === 'initialize' || method === 'ping';
-  if (!isProbe && providedKey !== expectedKey) {
-    const auth = await verifyAuth(event);
-    if (!auth) {
-      return {
-        jsonrpc: '2.0',
-        id: id ?? null,
-        error: {
-          code: -32000,
-          message: 'Unauthorized: Provide valid X-API-Key header with "mbos_ai_agent_secret_key"',
-        },
-      };
+  const oauth = mcpOAuthConfig();
+  const scopes = oauth ? await mcpOAuthScopes(event, method === 'tools/list' || params?.name === 'storefront_design') : new Set<string>();
+  const productRead = ['products', 'list_products', 'get_product'].includes(params?.name);
+  const productWrite = ['create_product', 'update_product', 'delete_product'].includes(params?.name);
+  const discovery = method !== 'tools/call';
+  const requiredScope = productWrite ? 'products:write' : 'products:read';
+  const oauthAllowed = (params?.name === 'storefront_design' && scopes.has('design:write')) ||
+    ((discovery || productRead || productWrite) &&
+    (scopes.has(requiredScope) || (discovery && scopes.has('products:write'))));
+  const designCall = method === 'tools/call' && params?.name === 'storefront_design';
+  const legacyAuth = oauthAllowed || designCall ? null : await verifyAuth(event);
+
+  if (!legacyAuth && !oauthAllowed && (oauth || !['initialize', 'ping'].includes(method))) {
+    setResponseStatus(event, 401);
+    if (oauth) {
+      setResponseHeader(event, 'WWW-Authenticate',
+        `Bearer resource_metadata="${oauth.metadata}", scope="openid email"`);
     }
+    return { jsonrpc: '2.0', id, error: { code: -32000, message: 'Unauthorized' } };
   }
 
   // Handle MCP JSON-RPC Methods
@@ -434,7 +456,8 @@ export async function handleMcpRequest(event: H3Event) {
         jsonrpc: '2.0',
         id: id ?? 1,
         result: {
-          protocolVersion: '2024-11-05',
+          protocolVersion: ['2024-11-05', '2025-03-26', '2025-06-18', '2025-11-25'].includes(params?.protocolVersion)
+            ? params.protocolVersion : '2025-11-25',
           capabilities: {
             tools: { listChanged: false },
             resources: {},
@@ -461,7 +484,10 @@ export async function handleMcpRequest(event: H3Event) {
         jsonrpc: '2.0',
         id: id ?? 1,
         result: {
-          tools: MCP_TOOLS,
+          tools: legacyAuth ? MCP_TOOLS.filter(({ name }) => name !== 'storefront_design') : MCP_TOOLS.filter(({ name }) =>
+            (scopes.has('design:write') && name === 'storefront_design') ||
+            (scopes.has('products:read') && ['products', 'list_products', 'get_product'].includes(name)) ||
+            (scopes.has('products:write') && ['create_product', 'update_product', 'delete_product'].includes(name))),
         },
       };
     }

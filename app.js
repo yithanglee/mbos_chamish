@@ -25,50 +25,18 @@ var apiRouter = require('./legacy_express_routes/api');
 var usersRouter = require('./legacy_express_routes/users');
 const fs = require('fs');
 
-// Source directory; this should already exist
-const srcDir = path.join(__dirname, 'internal/html');
-// Destination directory; this is where you want to create the symlink
-const destDir = path.join(__dirname, 'public/html/v2');
-const targetRel = path.relative(path.dirname(destDir), srcDir);
-
-const isWorker = typeof WebSocketPair !== 'undefined' || process.env.CF_PAGES || process.env.WORKER;
-
-if (!isWorker) {
-  try {
-    fs.mkdirSync(path.dirname(destDir), { recursive: true });
-    const stats = fs.lstatSync(destDir);
-    if (stats.isSymbolicLink()) {
-      const currentTarget = fs.readlinkSync(destDir);
-      if (currentTarget !== targetRel) {
-        fs.unlinkSync(destDir);
-        fs.symlinkSync(targetRel, destDir, 'dir');
-        console.log('Symlink updated successfully');
-      }
-    } else {
-      fs.rmSync(destDir, { recursive: true, force: true });
-      fs.symlinkSync(targetRel, destDir, 'dir');
-      console.log('Symlink created successfully');
-    }
-  } catch (err) {
-    if (err.code === 'ENOENT') {
-      fs.symlinkSync(targetRel, destDir, 'dir');
-      console.log('Symlink created successfully');
-    } else {
-      console.error('Error creating symlink:', err);
-    }
-  }
-}
+const isWorker = false;
 var app = express();
 
 
-const storage = require('./lib/storage');
+app.set('trust proxy', 'loopback');
 
 // Add helmet to the middleware chain.
 // Set CSP headers to allow our Bootstrap and Jquery to be served
 app.use(
   helmet.contentSecurityPolicy({
     directives: {
-      "form-action": ['localhost:5101/send-inquiry', 'mbos.com.my/send-inquiry', 'mbos.damienslab.com/send-inquiry'],
+      "form-action": ["'self'"],
       defaultSrc: ["'self'", "www.google.com"],
       "script-src-attr": ["'self'", "'unsafe-inline'"],
       "frame-src": ["'self'", "www.google.com", "challenges.cloudflare.com"],
@@ -99,7 +67,13 @@ if (!isWorker) {
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/html/v2', express.static(path.join(__dirname, 'internal/html')));
+app.use('/images/uploads', express.static(process.env.UPLOADS_DIR || path.join(__dirname, 'data/uploads')));
+app.use((req, res, next) => {
+  if (req.path.endsWith('.html') && !req.path.startsWith('/html/')) return res.redirect(302, req.path.slice(0, -5));
+  next();
+});
+app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 
 
@@ -159,11 +133,6 @@ app.use((req, res, next) => {
   res.locals.buildTime = buildInfo.buildTime;
   next();
 });
-app.get('/images/uploads/:filename', (req, res) => {
-  const target = `${storage.s3Endpoint}/${storage.bucketName}/images/uploads/${encodeURIComponent(req.params.filename)}`;
-  res.redirect(301, target);
-});
-
 app.use('/api/webhook', apiRouter);
 app.use('/', indexRouter);
 
@@ -177,7 +146,7 @@ app.post('/send-inquiry', async (req, res) => {
 
   try {
     const turnstileSecret = process.env.TURNSTILE_SECRET_KEY; // Using environment variable for security
-    console.log(turnstileSecret)
+
     const verifyUrl = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
     if (!turnstileSecret) {
       return res.status(400).json({ error: 'CAPTCHA Missing token' });
@@ -201,9 +170,7 @@ app.post('/send-inquiry', async (req, res) => {
 
     const outcome = await result.json();
     console.log(outcome)
-    // if (!outcome.success) {
-    //   return res.status(400).json({ error: 'CAPTCHA verification failed' });
-    // }
+    if (!outcome.success) return res.status(400).json({ error: 'CAPTCHA verification failed' });
 
     const mailOptions = {
       from: process.env.EMAIL_USER,

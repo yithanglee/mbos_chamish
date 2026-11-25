@@ -79,13 +79,10 @@ export default defineEventHandler(async (event) => {
   }
 
   // 2. General Storefront Pages / Landing
-  let cleanKey = urlPath.replace(/^\/+/, '');
+  let cleanKey = urlPath.replace(/^\/+|\/+$/g, '').replace(/\.html$/, '');
   if (!cleanKey || cleanKey === 'home') {
     cleanKey = 'landing';
   }
-
-  // Strip .html extension if requested
-  cleanKey = cleanKey.replace(/\.html$/, '');
 
   const [fullData, banners, sections] = await Promise.all([
     getProducts(),
@@ -119,14 +116,15 @@ export default defineEventHandler(async (event) => {
     buildTime,
   };
 
-  let pageHtml = renderTemplate(`pages/${cleanKey}`, renderVars);
+  // Customer-authored HTML takes precedence over bundled snapshots. Legacy
+  // catalog pages contain EJS and must use their build-time compiled template
+  // (Workers cannot evaluate EJS dynamically).
+  const dbPage = cleanKey === 'landing' ? null : await getPageByRoute(cleanKey);
+  let pageHtml = dbPage?.content?.trim() && !dbPage.content.includes('<%')
+    ? dbPage.content
+    : renderTemplate(`pages/${cleanKey}`, renderVars);
   if (!pageHtml) {
-    const dbPage = await getPageByRoute(cleanKey);
-    if (dbPage && dbPage.content) {
-      pageHtml = dbPage.content;
-    } else {
-      pageHtml = renderTemplate('pages/landing', renderVars) || '';
-    }
+    pageHtml = renderTemplate('pages/landing', renderVars) || '';
   }
   if (query.partial) {
     return pageHtml;

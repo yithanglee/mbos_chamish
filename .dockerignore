@@ -4,3 +4,15 @@ build
 .git
 *.md
 .gitignore
+.env
+.env.*
+.aws
+.ssh
+.codex
+.agents
+.neon
+.wrangler
+.output
+data
+backups
+deployment/linode/.env

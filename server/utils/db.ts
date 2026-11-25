@@ -1,5 +1,7 @@
 import { neon } from '@neondatabase/serverless';
 
+let pgPool: any = null;
+
 function getDatabaseUrl(): string {
   const url = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL || '';
   if (!url) {
@@ -8,8 +10,39 @@ function getDatabaseUrl(): string {
   return url;
 }
 
+function getPgSql(url: string) {
+  if (!pgPool) {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { Pool } = require('pg');
+    pgPool = new Pool({
+      connectionString: url,
+      max: 10,
+      connectionTimeoutMillis: 10000,
+      statement_timeout: 15000,
+    });
+    pgPool.on('error', (err: any) => console.error('PostgreSQL pool error:', err?.message));
+  }
+  return async function sql(parts: TemplateStringsArray | string[] | string, ...values: any[]) {
+    if (Array.isArray(parts)) {
+      const text = parts.reduce((query, part, i) => query + (i ? '$' + i : '') + part, '');
+      const res = await pgPool.query(text, values);
+      return res.rows;
+    }
+    const res = await pgPool.query(parts, values);
+    return res.rows;
+  };
+}
+
 export function getDb() {
-  return neon(getDatabaseUrl());
+  const url = getDatabaseUrl();
+  const isNeonHost = url.includes('.neon.tech');
+  const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+
+  if (isNode && (!isNeonHost || process.env.USE_PG_POOL === 'true')) {
+    return getPgSql(url);
+  }
+
+  return neon(url);
 }
 
 export function normalizeImgUrl(url?: string | null): string {

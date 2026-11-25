@@ -7,16 +7,16 @@ const ejs = require('ejs');
 require('dotenv').config();
 
 const db = require('../lib/db');
-const storage = require('../lib/storage');
 const templates = require('../lib/templates');
-const assetsUrl = `${storage.s3Endpoint}/${storage.bucketName}`;
+const assetsUrl = '';
+const asyncRoute = handler => (req, res, next) => Promise.resolve(handler(req, res, next)).catch(next);
 
 function renderTemplate(name, vars) {
   return templates.render(name, vars);
 }
 
 /* GET product page. */
-router.get('/single-product/*', async function (req, res, next) {
+router.get('/single-product/*', asyncRoute(async function (req, res, next) {
   var contentNav = '', content = '', filename = '';
   const productId = req.params[0] || req.query.id;
 
@@ -26,6 +26,7 @@ router.get('/single-product/*', async function (req, res, next) {
   }
 
   const key = req.params[0] || '';
+  if (key && !/^[a-zA-Z0-9_-]+$/.test(key)) return res.sendStatus(404);
   switch (key) {
     case 'home':
     case '':
@@ -86,12 +87,13 @@ router.get('/single-product/*', async function (req, res, next) {
 
   if (fullHtml) return res.send(fullHtml);
   return res.render('index', renderVars);
-});
+}));
 
 /* GET general pages / home. */
-router.get('/*', async function (req, res, next) {
+router.get('/*', asyncRoute(async function (req, res, next) {
   var contentNav = '', content = '', filename = '';
   const key = req.params[0] || '';
+  if (key && !/^[a-zA-Z0-9_-]+$/.test(key)) return res.sendStatus(404);
   switch (key) {
     case 'home':
     case '':
@@ -147,7 +149,10 @@ router.get('/*', async function (req, res, next) {
   };
 
   const pageKey = (key === 'home' || key === '') ? 'pages/landing' : ('pages/' + key);
-  const pageHtml = renderTemplate(pageKey, renderVars);
+  const savedPage = key && key !== 'home' ? (await db.getPages()).find(p => p.route_name.replace(/^\//, '') === key) : null;
+  const pageHtml = savedPage?.content
+    ? ejs.render(savedPage.content, renderVars)
+    : renderTemplate(pageKey, renderVars);
 
   if (Object.keys(req.query).includes('partial')) {
     if (pageHtml) return res.send(pageHtml);
@@ -161,6 +166,6 @@ router.get('/*', async function (req, res, next) {
 
   if (fullHtml) return res.send(fullHtml);
   return res.render('index', renderVars);
-});
+}));
 
 module.exports = router;

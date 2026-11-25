@@ -1,7 +1,11 @@
 /internal/html/*
 /internal/*
 /views/pages/*
+!/views/pages/*.ejs
+!/internal/html/
+!/internal/html/blog_nav.html
 /public/*
+!/public/original-mbos-banner.jpg
 .env
 .neon
 node_modules/
@@ -9,3 +13,8 @@ node_modules/
 dist/
 .nitro/
 .output/
+
+/data/
+/backups/
+/deployment/linode/.env
+/sites/

@@ -1,0 +1,105 @@
+<style>
+  .about_area p {
+    margin: 4px 0px !important;
+  }
+</style>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js"></script>
+<div class="bradcaump_area" style="
+    background-image: url('https://br-floral-tree-b35p9voh.storage.c-4.ap-southeast-1.aws.neon.tech/assets/images/uploads/cat.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="bradcaump_inner text-center">
+          <h2 class="bradcaump-title">
+            <font color="#ffffff">Contact Us</font>
+          </h2>
+          <nav class="bradcaump-content">
+            <font color="#ffffff"><a href="https://mbos.damienslab.com/home">Home</a>
+              <span id="nipa" class="brd-separetor">/</span>
+              <span class="breadcrumb_item active">Contact Us</span></font>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="about_area bg--white pt--120 pb--110">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="offset-lg-1 col-lg-10 col-12">
+        <div class="about_content">
+          <h2>Get your safety glasses now</h2>
+          <div class="row">
+            <h3>Inquiry Form&nbsp;</h3>
+            <form action="/send-inquiry" method="post">
+              <input type="hidden" name="cf-turnstile-response" id="cf-turnstile-response" value="" />
+              <div class="cf-turnstile"></div>
+              <div class="flex-column d-flex input_box gap-3 mb-4">
+                <input type="text" name="name" placeholder="Name" required="" />
+                <input type="text" name="company" placeholder="Company" />
+                <input type="text" name="phone" placeholder="Phone" />
+                <input type="text" name="address" placeholder="Address" />
+                <input type="email" name="email" placeholder="Email" required="" />
+                <textarea name="comment" placeholder="Comment" style="height: 118px;" required=""></textarea>
+                <button id="submitBtn" disabled type="submit" class="btn btn-outline-secondary"="">
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
+          <h3 class="mt-4">Location&nbsp;<br /></h3>
+          <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d15937.729960576577!2d101.7715245!3d2.9773937!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cdcb9a0a0991c3%3A0x9ccb9c2a430c96c9!2sMB%20Optics%20Safety%20Sdn%20Bhd!5e0!3m2!1sen!2smy!4v1723538751030!5m2!1sen!2smy" width="100%" height="600" style="border-style: initial; border-color: initial;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          <p><b>MB OPTICS SAFETY SDN BHD&nbsp;</b></p>
+          <p>No. 1-15, Taman Kajang Impian 1/11&nbsp;</p>
+          <p>Jalan Kajang Impian&nbsp;</p>
+          <p>43650 Bandar Baru Bangi&nbsp;</p>
+          <p>Selangor Malaysia&nbsp;</p>
+          <p>+603-8926 9899&nbsp;</p>
+          <p>
+            <a href="mailto:sales@mbos.com.my">SALES@MBOS.COM.MY&nbsp;</a><br />
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function onExpiration() {
+  document.getElementById('submitBtn').disabled = true;
+}
+
+
+function callT() {
+  turnstile.render(".cf-turnstile", {
+    sitekey: "0x4AAAAAAAjBcW_oPEBrFGDW",
+    callback: function(token) {
+      console.log(`Challenge Success ${token}`);
+      document.getElementById('cf-turnstile-response').value = token;
+      document.getElementById('submitBtn').disabled = false;
+    },
+  });
+
+
+}
+
+$(document).ready(() => {
+    try {
+        if (turnstile != null) {
+            callT()
+        } else {
+            setTimeout(() => {
+                callT()
+            }, 2000)
+        }
+    } catch (e) {
+        setTimeout(() => {
+            callT()
+        }, 2000)
+    }
+
+})
+</script>

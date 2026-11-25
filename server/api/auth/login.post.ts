@@ -1,4 +1,4 @@
-import { defineEventHandler, readBody, setCookie, createError } from 'h3';
+import { defineEventHandler, readBody, setCookie, getHeader, createError } from 'h3';
 import { getDb } from '../../utils/db';
 
 export default defineEventHandler(async (event) => {
@@ -7,9 +7,31 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Request body required' });
   }
 
-  const expectedKey = process.env.ADMIN_API_KEY || process.env.ADMIN_SECRET || 'mbos_ai_agent_secret_key';
+  const expectedKey = process.env.ADMIN_PASSWORD || process.env.ADMIN_API_KEY || process.env.ADMIN_SECRET;
 
-  // 1. Neon Auth token verification (if passed from Neon Auth client)
+  const proto = getHeader(event, 'x-forwarded-proto');
+  const host = getHeader(event, 'host') || '';
+  const isHttps = proto === 'https';
+  const isLocal = host.includes('localhost') || host.includes('127.0.0.1');
+  const cookieSecure = isHttps || (process.env.NODE_ENV === 'production' && !isLocal && process.env.ALLOW_INSECURE_COOKIES !== 'true');
+
+  // 1. Admin Passcode / Key verification
+  const password = body.password || body.apiKey;
+  if (password && expectedKey && password === expectedKey) {
+    setCookie(event, 'admin_auth', expectedKey, {
+      httpOnly: true,
+      secure: cookieSecure,
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7,
+      path: '/',
+    });
+    return {
+      success: true,
+      user: { name: 'Site Administrator', role: 'admin' },
+    };
+  }
+
+  // 2. Neon Auth token verification (if passed from Neon Auth client)
   if (body.sessionToken) {
     try {
       const sql = getDb();
@@ -23,7 +45,7 @@ export default defineEventHandler(async (event) => {
       if (rows.length > 0) {
         setCookie(event, 'neon_session', body.sessionToken, {
           httpOnly: true,
-          secure: true,
+          secure: cookieSecure,
           sameSite: 'lax',
           maxAge: 60 * 60 * 24 * 7, // 7 days
           path: '/',
@@ -36,22 +58,6 @@ export default defineEventHandler(async (event) => {
     } catch (err) {
       console.error('Neon Auth verification error:', err);
     }
-  }
-
-  // 2. Admin Passcode / Key verification
-  const password = body.password || body.apiKey;
-  if (password && password === expectedKey) {
-    setCookie(event, 'admin_auth', expectedKey, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7,
-      path: '/',
-    });
-    return {
-      success: true,
-      user: { name: 'Site Administrator', role: 'admin' },
-    };
   }
 
   throw createError({

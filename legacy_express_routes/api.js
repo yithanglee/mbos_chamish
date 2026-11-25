@@ -46,6 +46,7 @@ router.get('/', async function (req, res, next) {
 
 /* GET blog updates and regenerate HTML pages & nav */
 router.get('/blog_updates', async function (req, res, next) {
+  return res.status(410).json({ error: 'Use the offline content import workflow.' });
   var nroute = [], li_route = [];
   try {
     const contact = await db.getContact();
