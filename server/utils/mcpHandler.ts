@@ -428,23 +428,21 @@ export async function handleMcpRequest(event: H3Event) {
     return;
   }
 
-  const oauth = mcpOAuthConfig();
-  const scopes = oauth ? await mcpOAuthScopes(event, method === 'tools/list' || params?.name === 'storefront_design') : new Set<string>();
-  const productRead = ['products', 'list_products', 'get_product'].includes(params?.name);
-  const productWrite = ['create_product', 'update_product', 'delete_product'].includes(params?.name);
-  const discovery = method !== 'tools/call';
-  const requiredScope = productWrite ? 'products:write' : 'products:read';
-  const oauthAllowed = (params?.name === 'storefront_design' && scopes.has('design:write')) ||
-    ((discovery || productRead || productWrite) &&
-    (scopes.has(requiredScope) || (discovery && scopes.has('products:write'))));
-  const designCall = method === 'tools/call' && params?.name === 'storefront_design';
-  const legacyAuth = oauthAllowed || designCall ? null : await verifyAuth(event);
+  const oauth = mcpOAuthConfig(event);
+  const scopes = await mcpOAuthScopes(event, true);
+  const legacyAuth = await verifyAuth(event);
 
-  if (!legacyAuth && !oauthAllowed && (oauth || !['initialize', 'ping'].includes(method))) {
+  const isAuthorized = Boolean(
+    legacyAuth ||
+    scopes.has('all') ||
+    scopes.size > 0
+  );
+
+  if (!isAuthorized && !['initialize', 'ping'].includes(method)) {
     setResponseStatus(event, 401);
     if (oauth) {
       setResponseHeader(event, 'WWW-Authenticate',
-        `Bearer resource_metadata="${oauth.metadata}", scope="openid email"`);
+        `Bearer resource_metadata="${oauth.metadata}", scope="openid email all"`);
     }
     return { jsonrpc: '2.0', id, error: { code: -32000, message: 'Unauthorized' } };
   }
@@ -480,14 +478,20 @@ export async function handleMcpRequest(event: H3Event) {
     }
 
     case 'tools/list': {
+      const hasFullAccess = legacyAuth || scopes.has('all') || scopes.has('design:write') || scopes.has('homepage:write');
+      const filteredTools = hasFullAccess
+        ? MCP_TOOLS
+        : MCP_TOOLS.filter(({ name }) =>
+            (scopes.has('design:write') && ['storefront_design', 'homepage', 'list_landing_sections', 'update_landing_section', 'list_banners'].includes(name)) ||
+            (scopes.has('products:read') && ['product', 'products', 'list_products', 'get_product'].includes(name)) ||
+            (scopes.has('products:write') && ['create_product', 'update_product', 'delete_product'].includes(name))
+          );
+
       return {
         jsonrpc: '2.0',
         id: id ?? 1,
         result: {
-          tools: legacyAuth ? MCP_TOOLS.filter(({ name }) => name !== 'storefront_design') : MCP_TOOLS.filter(({ name }) =>
-            (scopes.has('design:write') && name === 'storefront_design') ||
-            (scopes.has('products:read') && ['products', 'list_products', 'get_product'].includes(name)) ||
-            (scopes.has('products:write') && ['create_product', 'update_product', 'delete_product'].includes(name))),
+          tools: filteredTools,
         },
       };
     }

@@ -31,6 +31,8 @@ services:
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
       AWS_ENDPOINT_URL_S3: ${AWS_ENDPOINT_URL_S3:-}
       AWS_REGION: ${AWS_REGION:-ap-southeast-1}
+      MCP_OAUTH_RESOURCE: ${MCP_OAUTH_RESOURCE:-https://mbos.com.my/api/mcp}
+      MCP_OAUTH_ISSUER: ${MCP_OAUTH_ISSUER:-https://mbos.com.my}
     ports:
       - '127.0.0.1:5101:5101'
     volumes:

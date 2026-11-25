@@ -1,18 +1,17 @@
 import { createPublicKey, verify } from 'node:crypto';
 import { getHeader, type H3Event } from 'h3';
 import { getDb } from './db';
+import { verifyAccessToken, getBaseUrl } from './selfOAuth';
 
-export function mcpOAuthConfig() {
-  const issuer = (process.env.MCP_OAUTH_ISSUER || process.env.NEON_AUTH_BASE_URL)?.replace(/\/$/, '');
-  const resource = process.env.MCP_OAUTH_RESOURCE;
-  if (!issuer || !resource || new URL(issuer).protocol !== 'https:' ||
-      new URL(resource).protocol !== 'https:') return null;
+export function mcpOAuthConfig(event?: H3Event) {
+  const issuer = (process.env.MCP_OAUTH_ISSUER || process.env.NEON_AUTH_BASE_URL)?.replace(/\/$/, '') || (event ? getBaseUrl(event) : 'https://mbos.com.my');
+  const resource = process.env.MCP_OAUTH_RESOURCE || `${event ? getBaseUrl(event) : 'https://mbos.com.my'}/api/mcp`;
 
   return {
     issuer,
     resource,
     jwksUrl: `${issuer}/.well-known/jwks.json`,
-    metadata: new URL('/.well-known/oauth-protected-resource', resource).href,
+    metadata: `${event ? getBaseUrl(event) : 'https://mbos.com.my'}/.well-known/oauth-protected-resource`,
   };
 }
 
@@ -23,15 +22,29 @@ function decode(segment: string) {
 }
 
 export async function mcpOAuthScopes(event: H3Event, checkDesignAccess = false): Promise<Set<string>> {
-  const config = mcpOAuthConfig();
-  const token = getHeader(event, 'authorization')?.match(/^Bearer (\S+)$/i)?.[1];
+  const token = getHeader(event, 'authorization')?.match(/^Bearer (\S+)$/i)?.[1] ||
+                getHeader(event, 'x-api-key');
+
+  if (!token) return new Set();
+
+  // 1. Check self-hosted OAuth token or direct Admin API Key first
+  const localAuth = verifyAccessToken(token);
+  if (localAuth.valid) {
+    return localAuth.scopes;
+  }
+
+  // 2. Fallback to external Neon Auth / OIDC JWT if configured
+  const config = mcpOAuthConfig(event);
   const scopes = new Set<string>();
   const reject = (reason: string) => {
     console.warn('MCP OAuth rejected:', reason);
     return scopes;
   };
-  if (!config) return scopes;
-  if (!token) return reject('missing_bearer');
+
+  if (!config || !config.issuer.includes('neon')) {
+    return scopes;
+  }
+
   if (token.length > 16384) return reject('token_too_long');
 
   let stage = 'jwt_decode';
@@ -88,23 +101,29 @@ export async function mcpOAuthScopes(event: H3Event, checkDesignAccess = false):
     if (granted.has('openid') || granted.has('products:read')) scopes.add('products:read');
     const writers = (process.env.MCP_OAUTH_WRITE_SUBJECTS || '').split(',').map(value => value.trim());
     if (granted.has('products:write') && writers.includes(claims.sub)) scopes.add('products:write');
+    
+    // Check design access
     if (checkDesignAccess) {
-      try {
-        const sql = getDb();
-        const users = await sql`
-          SELECT email, "emailVerified"
-          FROM neon_auth."user"
-          WHERE id = ${claims.sub}
-          LIMIT 1
-        `;
-        const identity = users[0];
-        const editors = ['damien@robugroup.com', 'yithanglee@gmail.com', 'calvin@mbos.com.my', 'calvintan@mbos.com.my'];
-        if (identity?.emailVerified === true && typeof identity.email === 'string' &&
-            editors.includes(identity.email.toLowerCase())) {
-          scopes.add('design:write');
+      const editors = ['damien@robugroup.com', 'yithanglee@gmail.com', 'calvin@mbos.com.my', 'calvintan@mbos.com.my'];
+      if (typeof claims.email === 'string' && editors.includes(claims.email.toLowerCase())) {
+        scopes.add('design:write');
+      } else {
+        try {
+          const sql = getDb();
+          const users = await sql`
+            SELECT email, "emailVerified"
+            FROM neon_auth."user"
+            WHERE id = ${claims.sub}
+            LIMIT 1
+          `;
+          const identity = users[0];
+          if (identity?.emailVerified === true && typeof identity.email === 'string' &&
+              editors.includes(identity.email.toLowerCase())) {
+            scopes.add('design:write');
+          }
+        } catch {
+          console.warn('MCP OAuth design identity lookup failed');
         }
-      } catch {
-        console.warn('MCP OAuth design identity lookup failed');
       }
     }
     if (scopes.size === 0) return reject('no_catalog_scope');
