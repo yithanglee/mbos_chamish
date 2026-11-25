@@ -61,7 +61,16 @@ Sections control header contact info, about us text, and footer content:
 - **Update banner**: \`PUT /api/v1/banners/:id\`
 - **Delete banner**: \`DELETE /api/v1/banners/:id\`
 
-### 5. Machine-Readable Specs
+### 5. Landing Page & Homepage Revisions
+Use \`landing_page\` (or \`homepage\`) to manage HTML revisions with drafts, previews, rollbacks, and instant publishing.
+Supports both the main storefront root (\`/\` or omit \`page\`) and sub-landing pages (e.g. \`page: "/products_rx"\` for RX Safety Glasses, or \`page: "/products_safety_spectacles"\`):
+- **Save Draft**: \`action: "draft", page: "/products_rx", html: "..."\`
+- **Preview Draft**: \`action: "preview", page: "/products_rx", id: <revision_id>\`
+- **Publish Revision**: \`action: "publish", page: "/products_rx", id: <revision_id>\`
+- **List Revisions**: \`action: "list", page: "/products_rx"\`
+- **Restore Default**: \`action: "restore-default", page: "/products_rx"\`
+
+### 6. Machine-Readable Specs
 - OpenAPI Spec: \`/api/ai/openapi.json\`
 - Function Calling Tools Spec: \`/api/ai/tools.json\`
 `;

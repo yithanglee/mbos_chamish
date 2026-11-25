@@ -196,13 +196,28 @@ export const MCP_TOOLS = [
     },
   },
   {
+    name: 'landing_page',
+    description: 'Manage landing page and homepage HTML revisions with drafts and instant publishing. Works for the root homepage ("/" or omit page) as well as any sub-landing page (e.g. page: "/products_rx" for RX safety glasses, or page: "/products_safety_spectacles"). Draft saves without publishing. Preview returns draft HTML for review. Publish changes the live page and can roll back to an older revision. Restore-default switches back to built-in template.',
+    inputSchema: {
+      type: 'object',
+      required: ['action'],
+      properties: {
+        action: { type: 'string', enum: ['list', 'draft', 'preview', 'publish', 'restore-default'], description: 'Revision action to perform' },
+        page: { type: 'string', description: 'Page route to manage, e.g. "/" for main homepage, or "/products_rx" for RX safety glasses landing page (default: "/")' },
+        html: { type: 'string', maxLength: 2000000, description: 'Complete HTML document, required for draft' },
+        id: { type: 'integer', minimum: 1, maximum: 2147483647, description: 'Revision ID, required for preview and publish' },
+      },
+    },
+  },
+  {
     name: 'homepage',
-    description: 'Manage homepage HTML revisions. Draft saves without publishing. Publish changes the live homepage and can roll back to an older revision. Restore-default switches to the built-in homepage.',
+    description: 'Manage homepage and landing page HTML revisions (draft, preview, publish, rollback, restore-default). Accepts optional "page" parameter (e.g. "/" or "/products_rx"). Alias for landing_page tool.',
     inputSchema: {
       type: 'object',
       required: ['action'],
       properties: {
         action: { type: 'string', enum: ['list', 'draft', 'preview', 'publish', 'restore-default'] },
+        page: { type: 'string', description: 'Page route to manage (default: "/" for main homepage, or "/products_rx" for RX landing page)' },
         html: { type: 'string', maxLength: 2000000, description: 'Complete HTML document, required for draft' },
         id: { type: 'integer', minimum: 1, maximum: 2147483647, description: 'Revision ID, required for preview and publish' },
       },
@@ -218,7 +233,7 @@ export const MCP_TOOLS = [
   },
   {
     name: 'create_or_update_page',
-    description: 'Create a new dynamic page or update an existing page in Neon Database (e.g. route_name: "/safety-standards", content: "<html>")',
+    description: 'Create a new dynamic page or update page metadata in the database. NOTE: To create and preview drafts, revisions, or rollbacks for landing pages (like /products_rx or /), prefer using the "landing_page" or "homepage" tool with action="draft" and page="/products_rx".',
     inputSchema: {
       type: 'object',
       required: ['name', 'route_name', 'content'],
@@ -365,10 +380,12 @@ async function executeTool(name: string, args: any, event: H3Event): Promise<any
 
     case 'storefront_design': return manageStorefrontDesign(args);
 
+    case 'landing_page':
     case 'homepage': {
-      if (args.action === 'list') return listHomepageRevisions();
-      const result = await manageHomepageRevision(args);
-      if (args.action === 'draft' && 'id' in result) return { id: result.id };
+      const pageRoute = args.page || args.route;
+      if (args.action === 'list') return listHomepageRevisions(pageRoute);
+      const result = await manageHomepageRevision({ ...args, page: pageRoute });
+      if (args.action === 'draft' && 'id' in result) return { id: result.id, page: pageRoute || '/' };
       return result;
     }
 
@@ -482,7 +499,7 @@ export async function handleMcpRequest(event: H3Event) {
       const filteredTools = hasFullAccess
         ? MCP_TOOLS
         : MCP_TOOLS.filter(({ name }) =>
-            (scopes.has('design:write') && ['storefront_design', 'homepage', 'list_landing_sections', 'update_landing_section', 'list_banners'].includes(name)) ||
+            (scopes.has('design:write') && ['storefront_design', 'homepage', 'landing_page', 'list_landing_sections', 'update_landing_section', 'list_banners'].includes(name)) ||
             (scopes.has('products:read') && ['product', 'products', 'list_products', 'get_product'].includes(name)) ||
             (scopes.has('products:write') && ['create_product', 'update_product', 'delete_product'].includes(name))
           );

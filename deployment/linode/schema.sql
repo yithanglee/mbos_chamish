@@ -112,3 +112,16 @@
       singleton boolean PRIMARY KEY DEFAULT true CHECK (singleton),
       revision_id integer REFERENCES homepage_revisions(id)
     );
+
+    CREATE TABLE IF NOT EXISTS page_revisions (
+      id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+      page_id bigint REFERENCES pages(id) ON DELETE CASCADE,
+      route_name varchar(255) NOT NULL,
+      html text NOT NULL,
+      created_at timestamptz NOT NULL DEFAULT now()
+    );
+
+    CREATE TABLE IF NOT EXISTS page_publication (
+      page_id bigint PRIMARY KEY REFERENCES pages(id) ON DELETE CASCADE,
+      revision_id integer REFERENCES page_revisions(id)
+    );

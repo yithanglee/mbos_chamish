@@ -682,10 +682,18 @@ export default defineEventHandler(async (event) => {
     </div>
 
     <div id="tab-homepage" class="tab-content">
-      <h2>Homepage HTML</h2>
-      <p>Enter a complete HTML document with its own page title and description.</p>
+      <h2>Landing Page & Homepage HTML Revisions</h2>
+      <p>Draft, preview, publish, and rollback HTML for the main homepage or sub-landing pages.</p>
       <p ${homepageEnabled ? 'hidden' : ''}>Homepage publishing is disabled. Apply the homepage migration and configure HOMEPAGE_CMS_ENABLED and ADMIN_API_KEY to use revision history.</p>
       <div ${homepageEnabled ? '' : 'hidden'}>
+      <div style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 12px;">
+        <label class="field-label" style="margin: 0;" for="homepageRouteSelect">Select Page:</label>
+        <select id="homepageRouteSelect" class="input-field" style="max-width: 380px;" onchange="runHomepageAction()">
+          <option value="/">Main Storefront Homepage (/)</option>
+          <option value="/products_rx">RX Safety Glasses (/products_rx)</option>
+          <option value="/products_safety_spectacles">Safety Spectacles (/products_safety_spectacles)</option>
+        </select>
+      </div>
       <form id="homepageForm">
         <label class="field-label" for="homepageSource">HTML source</label>
         <textarea id="homepageSource" class="input-field" rows="14" required maxlength="2000000"></textarea>
@@ -698,7 +706,7 @@ export default defineEventHandler(async (event) => {
           <tbody id="homepageRevisions"></tbody>
         </table>
       </div>
-      <button class="btn btn-outline" type="button" onclick="runHomepageAction('restore-default')">Restore Built-in Homepage</button>
+      <button class="btn btn-outline" type="button" onclick="runHomepageAction('restore-default')">Restore Built-in Page</button>
       <p id="homepageStatus" role="status"></p>
       <iframe id="homepagePreview" title="Homepage preview" sandbox referrerpolicy="no-referrer" style="width: 100%; height: 540px; background: white;" hidden></iframe>
       </div>
@@ -1568,10 +1576,13 @@ export default defineEventHandler(async (event) => {
     });
 
     async function homepageRequest(payload) {
-      const response = await fetch('/api/v1/homepage', payload ? {
+      const selectedPage = document.getElementById('homepageRouteSelect')?.value || '/';
+      const url = payload ? '/api/v1/homepage' : '/api/v1/homepage?page=' + encodeURIComponent(selectedPage);
+      const bodyPayload = payload ? { ...payload, page: payload.page || selectedPage } : undefined;
+      const response = await fetch(url, bodyPayload ? {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(bodyPayload),
       } : undefined);
       const result = await response.json();
       if (!response.ok) throw new Error(result.statusMessage || 'Homepage request failed');
@@ -1581,14 +1592,15 @@ export default defineEventHandler(async (event) => {
     async function runHomepageAction(action, id) {
       if (homepageBusy) return;
       if ((action === 'publish' || action === 'preview') && !id) return;
-      if (action === 'publish' && !confirm('Publish homepage revision #' + id + '?')) return;
-      if (action === 'restore-default' && !confirm('Restore the built-in homepage?')) return;
+      const selectedPage = document.getElementById('homepageRouteSelect')?.value || '/';
+      if (action === 'publish' && !confirm('Publish revision #' + id + ' for ' + selectedPage + '?')) return;
+      if (action === 'restore-default' && !confirm('Restore default for ' + selectedPage + '?')) return;
 
       homepageBusy = true;
       homepageStatus.textContent = 'Working…';
       try {
         if (action) {
-          const result = await homepageRequest(action === 'draft' ? { action, html: homepageSource.value } : { action, id });
+          const result = await homepageRequest(action === 'draft' ? { action, html: homepageSource.value, page: selectedPage } : { action, id, page: selectedPage });
           if (action === 'draft' || action === 'preview') {
             id = result.id;
             homepagePreview.srcdoc = result.html;
@@ -1598,12 +1610,12 @@ export default defineEventHandler(async (event) => {
             homepageSource.value = result.html;
           }
         }
-        const { revisions, publishedId } = await homepageRequest();
+        const { revisions, publishedId, page } = await homepageRequest();
         homepageRevisions.replaceChildren();
         if (!revisions.length) {
           const cell = homepageRevisions.insertRow().insertCell();
           cell.colSpan = 4;
-          cell.textContent = 'No saved revisions yet.';
+          cell.textContent = 'No saved revisions yet for ' + selectedPage;
         }
         for (const revision of revisions) {
           const live = revision.id === publishedId;
@@ -1612,17 +1624,17 @@ export default defineEventHandler(async (event) => {
           row.insertCell().textContent = new Date(revision.created_at).toLocaleString();
           row.insertCell().textContent = live ? 'Live' : 'Saved';
           const actions = row.insertCell();
-          for (const [action, label] of [['preview', 'Preview'], ['publish', 'Publish']]) {
+          for (const [act, label] of [['preview', 'Preview'], ['publish', 'Publish']]) {
             const button = document.createElement('button');
             button.type = 'button';
             button.className = 'btn btn-outline';
             button.textContent = label;
-            button.disabled = action === 'publish' && live;
-            button.addEventListener('click', () => runHomepageAction(action, revision.id));
+            button.disabled = act === 'publish' && live;
+            button.addEventListener('click', () => runHomepageAction(act, revision.id));
             actions.append(button);
           }
         }
-        homepageStatus.textContent = publishedId ? 'Live revision #' + publishedId : 'Built-in homepage is live';
+        homepageStatus.textContent = publishedId ? 'Live revision #' + publishedId + ' (' + selectedPage + ')' : 'Default is live (' + selectedPage + ')';
         if (action === 'draft') homepageStatus.textContent += '. Saved draft #' + id;
       } catch (err) {
         homepageStatus.textContent = err.message;
